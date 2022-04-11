@@ -17,7 +17,6 @@ contract InstaMoney {
         uint amount;
         uint term;
         uint rate;
-        uint status;    // 1 = Offered, 2 = Active, 3 = PaidOff
         address lender;
         uint ts;        //timestamp
     }
@@ -26,18 +25,13 @@ contract InstaMoney {
         uint id;
         uint offeringId;
         address borrower;
+        uint status;    // 1 = Active, 2 = PaidOff
         uint ts;
     }
 
-    // struct Transaction {
-    //     int amount;
-    //     uint type;          // 1: deposit, 2: withdrawn
-    //     uint timestamp;
-    // }
-
-    // Transaction[] transactions;
-
     mapping(address => User) users;
+    Loan[] loans;
+    Offering[] offerings;
 
     modifier onlyBroker()
     {
@@ -53,6 +47,46 @@ contract InstaMoney {
             users[msg.sender] = user;
         }
 
+    }
+
+    function getTotalProcessed() view public returns(uint, uint){
+        uint loans_until_now = loans.length;
+        uint clients_served = 0;
+        for (uint j = 0; j < loans.length ; j += 1) {
+            if(loans[j].status == 2){
+                clients_served += 2;
+            } else {
+                clients_served += 1;
+            }
+        }
+
+        return (loans_until_now, clients_served);
+    }
+
+    function cancelOffer(uint offer_id) public return (bool){
+        for (uint j = 0; j < loans.length ; j += 1) {
+            if(loans[j].offeringId == offer_id){
+                //cannot be cancelled since already executed as a loan
+                return false;
+            }
+        }
+
+        removeOffering(offer_id);
+        return true;
+    }
+
+    function removeOffering(uint offer_id) private {
+        int at_index = -1;
+        for (uint j = 0; j < offerings.length ; j += 1) {
+            if(offerings[j].id == offer_id){
+                at_index = j;
+                break;
+            }
+        }
+        if(at_index > -1){
+            offerings[at_index] = offerings[offerings.length - 1];
+            offerings.pop();
+        }
     }
 
     constructor () public {
