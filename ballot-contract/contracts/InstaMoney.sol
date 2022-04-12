@@ -29,9 +29,9 @@ contract InstaMoney {
         uint ts;
     }
 
-    mapping(address => User) users;
-    Loan[] loans;
-    Offering[] offerings;
+    mapping(address => User) public users;
+    Loan[] public loans;
+    Offering[] public offerings;
 
     modifier onlyBroker()
     {
