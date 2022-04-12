@@ -40,8 +40,9 @@ contract InstaMoney {
     }
 
     ///term is in days
-    function offerLoan(string memory lender_name, string memory identification, 
-                        uint term, uint interest_rate) public payable {
+    function offerLoan(string memory lender_name, string memory identification) public
+                      //  uint term, uint interest_rate) public payable 
+                        {
         if (users[msg.sender].id == 0) {
             User memory user = User({id: user_id_counter++, name: lender_name, identification: identification});
             users[msg.sender] = user;
@@ -63,7 +64,7 @@ contract InstaMoney {
         return (loans_until_now, clients_served);
     }
 
-    function cancelOffer(uint offer_id) public return (bool){
+    function cancelOffer(uint offer_id) public returns (bool){
         for (uint j = 0; j < loans.length ; j += 1) {
             if(loans[j].offeringId == offer_id){
                 //cannot be cancelled since already executed as a loan
@@ -76,14 +77,16 @@ contract InstaMoney {
     }
 
     function removeOffering(uint offer_id) private {
-        int at_index = -1;
+        bool found = false;
+        uint at_index = 0;
         for (uint j = 0; j < offerings.length ; j += 1) {
             if(offerings[j].id == offer_id){
                 at_index = j;
+                found = true;
                 break;
             }
         }
-        if(at_index > -1){
+        if(found){
             offerings[at_index] = offerings[offerings.length - 1];
             offerings.pop();
         }
