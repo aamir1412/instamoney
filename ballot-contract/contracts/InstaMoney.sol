@@ -4,7 +4,6 @@ contract InstaMoney {
 
     address public admin;
     uint public user_id_counter;
-    uint public offering_id_counter;
     uint public loan_id_counter;
 
     struct  User {
@@ -13,26 +12,20 @@ contract InstaMoney {
         string identification;
     }
 
-    struct Offering {
+    struct Loan {
         uint id;
         uint amount;
         uint term;
         uint rate;
         address lender;
-    }
-
-    struct Loan {
-        uint id;
-        uint offering_id;
         address borrower;
-        uint status;    // 1 = Active, 2 = PaidOff
+        uint status;    // 1 = Active, 2 = PaidOff , 3 = Open offer
         uint activated_at;      //timestamp
     }
 
     mapping(address => User) public users;
     mapping(address => uint) private balances;
     Loan[] public loans;
-    Offering[] public offerings;
 
     modifier onlyAdmin()
     {
@@ -49,10 +42,10 @@ contract InstaMoney {
             users[msg.sender] = user;
         }
 
-        Offering memory offer = Offering({id: offering_id_counter++, amount: msg.value, term: term,
-         rate: interest_rate, lender: msg.sender});
+        Loan memory offer = Loan({id: loan_id_counter++, amount: msg.value, term: term,
+         rate: interest_rate, lender: msg.sender, status: 3, borrower: msg.sender, activated_at: 0});  //open offer
 
-        offerings.push(offer);
+        loans.push(offer);
 
         balances[msg.sender] += msg.value;
 
@@ -78,10 +71,6 @@ contract InstaMoney {
     }
 
     function cancelOffer(uint offer_id) public payable{
-        for (uint j = 0; j < loans.length ; j += 1) {
-            require(loans[j].offering_id != offer_id, "Already executed loan cannot be cancelled");
-            //cannot be cancelled since already executed as a loan
-        }
 
         (address payable lender_addr, uint amount_to_return) = removeOffering(offer_id);
         require(address(this).balance >= amount_to_return, "Low Contract Wallet Balance");
@@ -94,19 +83,20 @@ contract InstaMoney {
         (uint at_index, bool found) = find_offer(offer_id);
 
         require(found, "Offering Id not found. Please check");
-        require(offerings[at_index].lender == msg.sender, "Only the one who posted the offer can cancel the offer");
+        require(loans[at_index].lender == msg.sender, "Only the one who posted the offer can cancel the offer");
+        require(loans[at_index].status == 3, "Only open offers can be cancelled");
 
-        address payable lender_addr = payable(offerings[at_index].lender);
-        uint amount_to_return = offerings[at_index].amount;
-        offerings[at_index] = offerings[offerings.length - 1];
-        offerings.pop();
+        address payable lender_addr = payable(loans[at_index].lender);
+        uint amount_to_return = loans[at_index].amount;
+        loans[at_index] = loans[loans.length - 1];
+        loans.pop();
 
         return (lender_addr, amount_to_return);
     }
 
     function find_offer(uint offer_id) public view returns (uint, bool) {
-        for (uint j = 0; j < offerings.length ; j += 1) {
-            if(offerings[j].id == offer_id){
+        for (uint j = 0; j < loans.length ; j += 1) {
+            if(loans[j].id == offer_id){
                 return (j, true);
             }
         }
@@ -116,7 +106,6 @@ contract InstaMoney {
     constructor () public payable {
         admin = msg.sender;
         user_id_counter = 1;
-        offering_id_counter = 1;
         loan_id_counter = 1;
         payable(address(this)).transfer(msg.value);
     }
