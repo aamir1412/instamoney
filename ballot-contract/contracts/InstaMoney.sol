@@ -5,6 +5,7 @@ contract InstaMoney {
     address public admin;
     uint public user_id_counter;
     uint public loan_id_counter;
+    uint private late_fine;
 
     struct  User {
         uint id;
@@ -27,7 +28,20 @@ contract InstaMoney {
     mapping(address => uint) private balances;
     Loan[] public loans;
 
-    function payOffLoan(uint loan_id) public payable{
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Can only be executed by admin");
+        _;
+    }
+
+    function getLateFine() public view returns(uint){
+        return late_fine;
+    }
+
+    function changeLateFine(uint new_late_fee) public onlyAdmin {
+        late_fine = new_late_fee;
+    }
+
+    function payOffLoan(uint loan_id) public payable {
 
     }
 
@@ -51,12 +65,6 @@ contract InstaMoney {
         loans[at_index].status = 1; //activate loan
         loans[at_index].activated_at = now;
         msg.sender.transfer(loans[at_index].amount);
-    }
-
-    modifier onlyAdmin()
-    {
-        require(msg.sender == admin, "Can only be executed by admin");
-        _;
     }
 
     ///term is in days
