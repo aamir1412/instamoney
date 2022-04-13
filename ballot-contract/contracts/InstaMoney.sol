@@ -16,7 +16,8 @@ contract InstaMoney {
     struct Loan {
         uint id;
         uint amount;
-        uint term;
+        uint repaid_amt;
+        uint term;      //months
         uint rate;
         address lender;
         address borrower;
@@ -42,7 +43,54 @@ contract InstaMoney {
     }
 
     function payOffLoan(uint loan_id) public payable {
+        require(msg.value != 0, "Zero amount is not acceptable as repayment");
 
+        (uint at_index, bool found) = find_offer(loan_id);
+
+        require(found, "Loan not found");
+        //We are assuming anyone can pay off the loan on behalf of the borrower.
+        //Even the lender or government can pay off if they are willing to forgive the loan
+        require(loans[at_index].status == 1, "Loan is not active");
+
+        Loan memory curr = loans[at_index];
+        uint to_repay = calculateRepaymentAmount(curr);
+
+        require(msg.value <= to_repay , "Please don't transfer extra amount");
+
+        //accept payment
+        curr.repaid_amt += msg.value;
+        if(curr.repaid_amt == curr.amount) {
+            curr.status = 2;    //Paid off completely
+        }
+    }
+
+    function findRemainingAmt(uint loan_id) private view returns(uint){
+        (uint at_index, bool found) = find_offer(loan_id);
+        if(!found) return 0;
+
+        Loan memory curr = loans[at_index];
+        if(curr.status != 1) return 0;      //is not an active loan
+
+        return calculateRepaymentAmount(curr);
+    }
+
+    function calculateRepaymentAmount(Loan memory curr) private view returns(uint) {
+        uint principal = curr.amount;
+
+        uint time_elapsed_in_days = (now - curr.activated_at) / 60 / 60 / 24;
+        uint interest = calcInterest(curr.amount, curr.rate, time_elapsed_in_days);
+
+        uint late_amt = 0;
+        if(now - (curr.term * 30 days) > curr.activated_at) {
+            //Repayment is late
+            late_amt = late_fine;
+        }
+        
+        return principal + interest + late_amt - curr.repaid_amt;
+    }
+
+    function calcInterest(uint amount, uint rate, uint no_days) private pure returns(uint) {
+        return amount * rate * no_days / 100 / 365;
     }
 
     function takeLoan(string memory lender_name, string memory identification,
@@ -71,13 +119,14 @@ contract InstaMoney {
     function offerLoan(string memory lender_name, string memory identification,
                         uint term, uint interest_rate) public payable {
         require(msg.value != 0, "Poor you. Please offer some money at least");
+        require(term != 0, "term cannot be 0 months");
         if (users[msg.sender].id == 0) {
             User memory user = User({id: user_id_counter++, name: lender_name, identification: identification});
             users[msg.sender] = user;
         }
 
-        Loan memory offer = Loan({id: loan_id_counter++, amount: msg.value, term: term,
-         rate: interest_rate, lender: msg.sender, status: 3, borrower: msg.sender, activated_at: 0});  //open offer
+        Loan memory offer = Loan({id: loan_id_counter++, amount: msg.value, repaid_amt: 0, term: term,
+         rate: interest_rate, lender: msg.sender, borrower: msg.sender, status: 3, activated_at: 0});  //open offer
 
         loans.push(offer);
 
