@@ -89,7 +89,7 @@ contract InstaMoney {
         lender_addr.transfer(amount_to_return);
     }
 
-    function removeOffering(uint offer_id) public returns(address payable, uint) {
+    function removeOffering(uint offer_id) private returns(address payable, uint) {
 
         (uint at_index, bool found) = find_offer(offer_id);
 
