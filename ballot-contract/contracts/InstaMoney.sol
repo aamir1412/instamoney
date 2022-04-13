@@ -2,8 +2,7 @@ pragma solidity >=0.4.22 <=0.6.0;
 
 contract InstaMoney {
 
-    address payable public broker;
-    uint public net_funds;
+    address public admin;
     uint public user_id_counter;
     uint public offering_id_counter;
     uint public loan_id_counter;
@@ -20,7 +19,6 @@ contract InstaMoney {
         uint term;
         uint rate;
         address lender;
-        bool is_active;
     }
 
     struct Loan {
@@ -36,9 +34,9 @@ contract InstaMoney {
     Loan[] public loans;
     Offering[] public offerings;
 
-    modifier onlyBroker()
+    modifier onlyAdmin()
     {
-        require(msg.sender == broker, "Can only be executed by admin");
+        require(msg.sender == admin, "Can only be executed by admin");
         _;
     }
 
@@ -52,13 +50,17 @@ contract InstaMoney {
         }
 
         Offering memory offer = Offering({id: offering_id_counter++, amount: msg.value, term: term,
-         rate: interest_rate, lender: msg.sender, is_active: true});
+         rate: interest_rate, lender: msg.sender});
 
         offerings.push(offer);
 
         balances[msg.sender] += msg.value;
-        net_funds += msg.value;
-        broker.transfer(msg.value);
+
+        //if this fails, all the above state changes will be reverted
+    }
+
+    function getBal() public view returns(uint){
+        return address(this).balance;
     }
 
     function getTotalProcessed() view public returns(uint, uint){
@@ -75,40 +77,48 @@ contract InstaMoney {
         return (loans_until_now, clients_served);
     }
 
-    function cancelOffer(uint offer_id) public returns (bool){
+    function cancelOffer(uint offer_id) public payable{
         for (uint j = 0; j < loans.length ; j += 1) {
-            if(loans[j].offering_id == offer_id){
-                //cannot be cancelled since already executed as a loan
-                return false;
-            }
+            require(loans[j].offering_id != offer_id, "Already executed loan cannot be cancelled");
+            //cannot be cancelled since already executed as a loan
         }
 
-        removeOffering(offer_id);
-        return true;
+        (address payable lender_addr, uint amount_to_return) = removeOffering(offer_id);
+        require(address(this).balance >= amount_to_return, "Low Contract Wallet Balance");
+        balances[msg.sender] -= amount_to_return;
+        lender_addr.transfer(amount_to_return);
     }
 
-    function removeOffering(uint offer_id) private {
-        bool found = false;
-        uint at_index = 0;
+    function removeOffering(uint offer_id) public returns(address payable, uint) {
+
+        (uint at_index, bool found) = find_offer(offer_id);
+
+        require(found, "Offering Id not found. Please check");
+        require(offerings[at_index].lender == msg.sender, "Only the one who posted the offer can cancel the offer");
+
+        address payable lender_addr = payable(offerings[at_index].lender);
+        uint amount_to_return = offerings[at_index].amount;
+        offerings[at_index] = offerings[offerings.length - 1];
+        offerings.pop();
+
+        return (lender_addr, amount_to_return);
+    }
+
+    function find_offer(uint offer_id) public view returns (uint, bool) {
         for (uint j = 0; j < offerings.length ; j += 1) {
             if(offerings[j].id == offer_id){
-                at_index = j;
-                found = true;
-                break;
+                return (j, true);
             }
         }
-        if(found){
-            offerings[at_index] = offerings[offerings.length - 1];
-            offerings.pop();
-        }
+        return (0, false);
     }
 
-    constructor () public {
-        broker = msg.sender;
-        net_funds = 0;
+    constructor () public payable {
+        admin = msg.sender;
         user_id_counter = 1;
         offering_id_counter = 1;
         loan_id_counter = 1;
+        payable(address(this)).transfer(msg.value);
     }
 
 }
