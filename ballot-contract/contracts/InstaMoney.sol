@@ -27,6 +27,32 @@ contract InstaMoney {
     mapping(address => uint) private balances;
     Loan[] public loans;
 
+    function payOffLoan(uint loan_id) public payable{
+
+    }
+
+    function takeLoan(string memory lender_name, string memory identification,
+        uint loan_id, uint credit_score, bool signed_collateral_agreement) public payable {
+        require(credit_score >= 600, "We can't lend to low credit borrowers");
+        require(signed_collateral_agreement, "We can't lend without you agreeing for the collateral");
+        
+        if (users[msg.sender].id == 0) {
+            User memory user = User({id: user_id_counter++, name: lender_name, identification: identification});
+            users[msg.sender] = user;
+        }
+
+        (uint at_index, bool found) = find_offer(loan_id);
+        require(found, "Loan not available");
+        require(loans[at_index].status == 3, "Loan already taken by someone else");
+        require(loans[at_index].lender != msg.sender, "Don't try to trick the system");
+        
+        //all good. give out loan
+        loans[at_index].borrower = msg.sender;
+        loans[at_index].status = 1; //activate loan
+        loans[at_index].activated_at = now;
+        msg.sender.transfer(loans[at_index].amount);
+    }
+
     modifier onlyAdmin()
     {
         require(msg.sender == admin, "Can only be executed by admin");
