@@ -58,13 +58,14 @@ contract InstaMoney {
         require(msg.value <= to_repay , "Please don't transfer extra amount");
 
         //accept payment
-        curr.repaid_amt += msg.value;
-        if(curr.repaid_amt == curr.amount) {
-            curr.status = 2;    //Paid off completely
+        loans[at_index].repaid_amt += msg.value;
+        if(msg.value == to_repay) {
+            loans[at_index].status = 2;    //Paid off completely
         }
+        payable(loans[at_index].lender).transfer(msg.value);
     }
 
-    function findRemainingAmt(uint loan_id) private view returns(uint){
+    function findRemainingAmt(uint loan_id) public view returns(uint){
         (uint at_index, bool found) = find_offer(loan_id);
         if(!found) return 0;
 
@@ -77,8 +78,8 @@ contract InstaMoney {
     function calculateRepaymentAmount(Loan memory curr) private view returns(uint) {
         uint principal = curr.amount;
 
-        uint time_elapsed_in_days = (now - curr.activated_at) / 60 / 60 / 24;
-        uint interest = calcInterest(curr.amount, curr.rate, time_elapsed_in_days);
+        uint time_elapsed_in_minutes = (now - curr.activated_at) / 60;
+        uint interest = calcInterest(curr.amount, curr.rate, time_elapsed_in_minutes);
 
         uint late_amt = 0;
         if(now - (curr.term * 30 days) > curr.activated_at) {
@@ -89,17 +90,17 @@ contract InstaMoney {
         return principal + interest + late_amt - curr.repaid_amt;
     }
 
-    function calcInterest(uint amount, uint rate, uint no_days) private pure returns(uint) {
-        return amount * rate * no_days / 100 / 365;
+    function calcInterest(uint amount, uint rate, uint no_of_minutes) private pure returns(uint) {
+        return amount * rate * no_of_minutes / 100 / 365 / 60 / 24;
     }
 
-    function takeLoan(string memory lender_name, string memory identification,
+    function takeLoan(string memory borrower_name, string memory identification,
         uint loan_id, uint credit_score, bool signed_collateral_agreement) public payable {
         require(credit_score >= 600, "We can't lend to low credit borrowers");
         require(signed_collateral_agreement, "We can't lend without you agreeing for the collateral");
         
         if (users[msg.sender].id == 0) {
-            User memory user = User({id: user_id_counter++, name: lender_name, identification: identification});
+            User memory user = User({id: user_id_counter++, name: borrower_name, identification: identification});
             users[msg.sender] = user;
         }
 
