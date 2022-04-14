@@ -1,0 +1,26 @@
+.curr_date {
+    display: flex;
+    flex-direction: column;
+    width: 12.5rem;
+    height: 2.5rem;
+    border: 1px solid #bcafaf; 
+    background-color: #15435a;
+    color: white;
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .curr__month {
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+  
+  .curr__year {
+    font-size: 0.75rem;
+  }
+  
+  .curr__day {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
