@@ -19,9 +19,15 @@
     border-color: slategrey;
     border-radius: 4px;
 }
+.container-div{
+  display: flex;
   
+}
+.padd{
+  padding: 1rem;
+}
 .item {
-    font-size: 0.8rem;
+    font-size: 1rem;
     /*font-weight: bold;*/
     color: white;
     /*background-color: #40005d;*/

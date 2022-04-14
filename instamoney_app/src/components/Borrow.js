@@ -11,8 +11,7 @@ function Borrow(){
 
     return( 
     <div >   
-        <div className="enter"> Enter your details </div>             
-        
+        <div className="enter"> Enter your details and go to BankRates (top right) </div>                     
         <div className='box'>Name: {Name}</div>
         <div className='box'>Amount: ${Amount} </div>
         <div className='box'>SSN: {ssn}</div>
