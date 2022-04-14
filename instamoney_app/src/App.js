@@ -9,6 +9,7 @@ import BankRates from "./components/BankRates";
 function App() {
   return (
     <div>
+      <CurrDate/>
     <Routes>    
       <Route path='/' element = {<Borrow/> }>
            
