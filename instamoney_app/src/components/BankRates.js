@@ -16,6 +16,7 @@ function BankRates()
 
     return(
         <div>
+            <h2 className='item'>Available rates</h2>
             <div className='box'>
                 <div className='item'> {bank_rates[0].bank} </div> 
                 <div className='item'> {bank_rates[0].rate} % </div>                
