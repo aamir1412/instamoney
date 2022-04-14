@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
+import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
@@ -17,9 +17,9 @@ class App extends Component {
 
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
+      const deployedNetwork = InstaMoneyContract.networks[networkId];
       const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
+        InstaMoneyContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
 
@@ -38,14 +38,14 @@ class App extends Component {
   runExample = async () => {
     const { accounts, contract } = this.state;
 
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+    // // Testing our contract. Works
+    // const response1 = await contract.methods.getLateFine().call();
+    // console.log('QQQ Got ->', response1);
+    // await contract.methods.changeLateFine(5000).send({ from: accounts[0] });
+    // const response2 = await contract.methods.getLateFine().call();
+    // console.log('QQQ Got ->', response2);
 
-    // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
-
-    // Update state with the result.
-    this.setState({ storageValue: response });
+    this.setState({ storageValue: 0 });
   };
 
   render() {

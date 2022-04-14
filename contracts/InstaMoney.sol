@@ -191,6 +191,7 @@ contract InstaMoney {
         admin = msg.sender;
         user_id_counter = 1;
         loan_id_counter = 1;
+        late_fine = 4000;
         payable(address(this)).transfer(msg.value);
     }
 
