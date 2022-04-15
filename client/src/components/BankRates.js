@@ -1,4 +1,5 @@
 import "./BankRates.css";
+import React, { Component }  from 'react';
 
 function BankRates() {
   function confirmHandler() {

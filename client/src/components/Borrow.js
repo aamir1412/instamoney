@@ -1,4 +1,6 @@
 import './Borrow.css';
+import React, { Component }  from 'react';
+
 
 function Borrow(){
     

@@ -1,5 +1,7 @@
 import './CurrDate.css';
 import './Borrow.css'
+import React, { Component }  from 'react';
+
 
 function CurrDate(){
 const date = new Date();

@@ -2,6 +2,14 @@ import React, { Component } from "react";
 import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
 
+import { Route, Routes } from 'react-router-dom';
+import MainNavigation from './components/MainNavigation';
+import CurrDate from "./components/CurrDate";
+import './components/Borrow.css';
+import Borrow from "./components/Borrow";
+import BankRates from "./components/BankRates";
+import Lend from './components/Lend';
+
 import "./App.css";
 
 class App extends Component {
@@ -54,17 +62,16 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 42</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
+        <div>
+          <MainNavigation/>
+            <h2> </h2>
+            <CurrDate/>
+            <Routes>                       
+              <Route path="/" element = {<Borrow/>} />      
+              <Route path='/lend' element = {<Lend/> }/>                                                           
+              <Route path='/rates' element = {<BankRates/> }/>                                                
+            </Routes> 
+        </div>
       </div>
     );
   }

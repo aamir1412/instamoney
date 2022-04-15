@@ -1,4 +1,6 @@
 import classes from './Lend.module.css';
+import React, { Component }  from 'react';
+
 
 function Lend(){
     const id = 'e1'
