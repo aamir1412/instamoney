@@ -4,8 +4,7 @@
 
 3. npm install truffle
 
-4. cd contracts
-   truffle compile
+4. truffle compile
    truffle migrate --reset
 
 5. cd client
