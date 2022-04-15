@@ -92,8 +92,17 @@ class App extends Component {
     this.setState({ formterm: formterm });
   }
 
-  handleFormSubmit = (e) => {
+  handleFormSubmit = async (e) => {
     e.preventDefault();
+    const { accounts, contract, formname, formamount, formidn, formterm, formrate } = this.state;
+
+    const amountInWei = this.state.web3.utils.toWei(formamount, 'ether');
+    console.log(formname, amountInWei, formidn, formterm, formrate);
+
+    const response = await contract.methods.offerLoan(formname, formidn, formterm, formrate).send({from: accounts[0], value: amountInWei})
+                                                      .then(res => 
+                                                        console.log('Success', res))
+                                                      .catch(err => console.log(err));
   }
 
   runExample = async () => {
@@ -140,6 +149,7 @@ class App extends Component {
                       required
                     />
                     <TextField
+                      type="number"
                       onChange={this.handleAmtChange}
                       value={this.state.formamount}
                       className={classes.formfield}
@@ -161,6 +171,7 @@ class App extends Component {
                     />
                     <TextField
                       onChange={this.handleTermChange}
+                      type="number"
                       value={this.state.formterm}
                       className={classes.formfield}
                       label="Term"
@@ -182,7 +193,7 @@ class App extends Component {
                     <Button
                     type="submit" color="secondary" variant="outlined"
                     endIcon={<KeyboardArrowRight/>}>
-                      Find Best Rates
+                      {(this.state.currTab === 0) ? "Lend Money" : "Find Best Rates"}
                     </Button>
                   </form>
                 </CardContent>
