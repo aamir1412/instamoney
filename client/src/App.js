@@ -9,11 +9,30 @@ import './components/Borrow.css';
 import Borrow from "./components/Borrow";
 import BankRates from "./components/BankRates";
 import Lend from './components/Lend';
+import LoansList from "./components/loansList";
+import {Tabs, Tab, AppBar, TextField} from '@material-ui/core';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@mui/material/Typography';
 
 import "./App.css";
 
+const useStyles = theme => ({
+  formfield:{
+    marginTop: 20,
+    marginBottom: 20,
+    display: 'block'
+  },
+});
+
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+  
+  state = { storageValue: 0, web3: null, accounts: null, contract: null, currTab: 0, currFormData: {}};
 
   componentDidMount = async () => {
     try {
@@ -43,6 +62,40 @@ class App extends Component {
     }
   };
 
+  handleTabChange = (e, val) => {
+    this.setState({currTab : val});
+    console.log(val);
+  }
+
+  handleNameChange = (event) => {
+    const formname = event.target.value;
+    this.setState({ formname: formname });
+  }
+
+  handleAmtChange = (event) => {
+    const formamount = event.target.value;
+    this.setState({ formamount: formamount });
+  }
+
+  handleFormIdnChange = (event) => {
+    const formidn = event.target.value;
+    this.setState({ formidn: formidn });
+  }
+
+  handleInterestRateChange = (event) => {
+    const formrate = event.target.value;
+    this.setState({ formrate: formrate });
+  }
+
+  handleTermChange = (event) => {
+    const formterm = event.target.value;
+    this.setState({ formterm: formterm });
+  }
+
+  handleFormSubmit = (e) => {
+    e.preventDefault();
+  }
+
   runExample = async () => {
     const { accounts, contract } = this.state;
 
@@ -57,6 +110,7 @@ class App extends Component {
   };
 
   render() {
+    const { classes } = this.props;
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
@@ -64,17 +118,101 @@ class App extends Component {
       <div className="App">
         <div>
           <MainNavigation/>
-            <h2> </h2>
-            <CurrDate/>
-            <Routes>                       
-              <Route path="/" element = {<Borrow/>} />      
-              <Route path='/lend' element = {<Lend/> }/>                                                           
-              <Route path='/rates' element = {<BankRates/> }/>                                                
-            </Routes> 
+          <AppBar position="static">
+            <Tabs value = {this.state.currTab} onChange={this.handleTabChange}>
+              <Tab label="Lend"/>
+              <Tab label="Borrow"/>
+            </Tabs>
+          </AppBar>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={3}>
+              <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+                  <form noValidate autoComplete="off" onSubmit={this.handleFormSubmit}>
+                    <TextField
+                      onChange={this.handleNameChange}
+                      value={this.state.formname}
+                      className={classes.formfield}
+                      label="Name"
+                      variant="outlined"
+                      color="secondary"
+                      fullWidth
+                      required
+                    />
+                    <TextField
+                      onChange={this.handleAmtChange}
+                      value={this.state.formamount}
+                      className={classes.formfield}
+                      label="Amount"
+                      variant="outlined"
+                      color="secondary"
+                      fullWidth
+                      required
+                    />
+                    <TextField
+                      onChange={this.handleFormIdnChange}
+                      value={this.state.formidn}
+                      className={classes.formfield}
+                      label="Identification (SSN/PAN)"
+                      variant="outlined"
+                      color="secondary"
+                      fullWidth
+                      required
+                    />
+                    <TextField
+                      onChange={this.handleTermChange}
+                      value={this.state.formterm}
+                      className={classes.formfield}
+                      label="Term"
+                      variant="outlined"
+                      color="secondary"
+                      fullWidth
+                      required
+                    />
+                    <TextField
+                      onChange={this.handleInterestRateChange}
+                      value={this.state.formrate}
+                      className={classes.formfield}
+                      label="Interest Rate"
+                      variant="outlined"
+                      color="secondary"
+                      fullWidth
+                      required
+                    />
+                    <Button
+                    type="submit" color="secondary" variant="outlined"
+                    endIcon={<KeyboardArrowRight/>}>
+                      Find Best Rates
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={9}>
+              <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom component="div">
+                    {this.state.currTab === 0 ? 'Loans you have offered' : 'Loans you have taken'}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            {(this.state.currTab === 1) ? 
+            <Grid item xs={12} md={12}>
+              <Card sx={{ minWidth: 275 }}>
+                <CardContent>
+                <Typography variant="h5" gutterBottom component="div">
+                  Open Offers
+                </Typography>
+                </CardContent>
+              </Card>
+            </Grid> : null
+            }
+          </Grid>
         </div>
       </div>
     );
   }
 }
 
-export default App;
+export default withStyles(useStyles)(App);
