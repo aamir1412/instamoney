@@ -1,4 +1,5 @@
 pragma solidity ^0.6.0;
+pragma experimental ABIEncoderV2;
 
 contract InstaMoney {
 
@@ -27,7 +28,7 @@ contract InstaMoney {
 
     mapping(address => User) public users;
     mapping(address => uint) private balances;
-    Loan[] public loans;
+    Loan[] private loans;
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Can only be executed by admin");
@@ -36,6 +37,10 @@ contract InstaMoney {
 
     function getLateFine() public view returns(uint){
         return late_fine;
+    }
+
+    function getAllLoans() public view returns (Loan[] memory){
+        return loans;
     }
 
     function changeLateFine(uint new_late_fee) public onlyAdmin {

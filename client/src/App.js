@@ -102,13 +102,28 @@ class App extends Component {
     // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
     // ^use this while receiving and sending ethers
     const response = await contract.methods.offerLoan(formname, formidn, formterm, formrate).send({from: accounts[0], value: amountInWei})
-                                                      .then(res => 
-                                                        console.log('Success', res))
-                                                      .catch(err => console.log(err));
+                                                      .then(this.getAllLoans).catch(err => console.log(err));
   }
 
   runExample = async () => {
     const { accounts, contract } = this.state;
+
+    // // Testing our contract. Works
+    // const response1 = await contract.methods.getLateFine().call();
+    // console.log('QQQ Got ->', response1);
+    // await contract.methods.changeLateFine(5000).send({ from: accounts[0] });
+    // const response2 = await contract.methods.getLateFine().call();
+    // console.log('QQQ Got ->', response2);
+
+    this.setState({ storageValue: 0 });
+  };
+
+  getAllLoans = async (res) => {
+    console.log('Success', res);
+    const { accounts, contract } = this.state;
+
+    const response = await contract.methods.getAllLoans().call();
+    console.log('QQQ Got ->', response);
 
     // // Testing our contract. Works
     // const response1 = await contract.methods.getLateFine().call();
