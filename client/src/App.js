@@ -99,6 +99,8 @@ class App extends Component {
     const amountInWei = this.state.web3.utils.toWei(formamount, 'ether');
     console.log(formname, amountInWei, formidn, formterm, formrate);
 
+    // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
+    // ^use this while receiving and sending ethers
     const response = await contract.methods.offerLoan(formname, formidn, formterm, formrate).send({from: accounts[0], value: amountInWei})
                                                       .then(res => 
                                                         console.log('Success', res))
