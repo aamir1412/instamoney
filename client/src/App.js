@@ -32,7 +32,7 @@ const useStyles = theme => ({
 
 class App extends Component {
   
-  state = { storageValue: 0, web3: null, accounts: null, contract: null, currTab: 0, currFormData: {}};
+  state = { web3: null, accounts: null, contract: null, currTab: 0, loans:[]};
 
   componentDidMount = async () => {
     try {
@@ -52,7 +52,7 @@ class App extends Component {
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
+      this.setState({ web3, accounts, contract: instance }, this.initialSetup);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -64,7 +64,6 @@ class App extends Component {
 
   handleTabChange = (e, val) => {
     this.setState({currTab : val});
-    console.log(val);
   }
 
   handleNameChange = (event) => {
@@ -105,17 +104,10 @@ class App extends Component {
                                                       .then(this.getAllLoans).catch(err => console.log(err));
   }
 
-  runExample = async () => {
+  initialSetup = async () => {
     const { accounts, contract } = this.state;
-
-    // // Testing our contract. Works
-    // const response1 = await contract.methods.getLateFine().call();
-    // console.log('QQQ Got ->', response1);
-    // await contract.methods.changeLateFine(5000).send({ from: accounts[0] });
-    // const response2 = await contract.methods.getLateFine().call();
-    // console.log('QQQ Got ->', response2);
-
-    this.setState({ storageValue: 0 });
+    const response = await contract.methods.getAllLoans().call();
+    this.setState({ loans: response });
   };
 
   getAllLoans = async (res) => {
@@ -123,16 +115,9 @@ class App extends Component {
     const { accounts, contract } = this.state;
 
     const response = await contract.methods.getAllLoans().call();
-    console.log('QQQ Got ->', response);
+    console.log('WWW Got ->', response);
 
-    // // Testing our contract. Works
-    // const response1 = await contract.methods.getLateFine().call();
-    // console.log('QQQ Got ->', response1);
-    // await contract.methods.changeLateFine(5000).send({ from: accounts[0] });
-    // const response2 = await contract.methods.getLateFine().call();
-    // console.log('QQQ Got ->', response2);
-
-    this.setState({ storageValue: 0 });
+    this.setState({ loans: response });
   };
 
   render() {
@@ -222,6 +207,7 @@ class App extends Component {
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? 'Loans you have offered' : 'Loans you have taken'}
                   </Typography>
+                  <LoansList data={this.state}/>
                 </CardContent>
               </Card>
             </Grid>

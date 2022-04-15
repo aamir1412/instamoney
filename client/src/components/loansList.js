@@ -5,17 +5,15 @@ import { Component } from 'react'
 
 class LoansList extends Component{
 
-    componentDidMount(){
-        // fetch('/loans')
-        // .then(results => { return results.json();})
-        // .then(Loans => {this.setState({Loans})});
+    constructor(props){
+        super(props);
+        this.state = {
+            Loans: this.props.data.loans
+        }
     }
 
-    constructor(props){
-        super(props)
-        this.state = {
-            Loans: []
-        }
+    componentWillReceiveProps(nextProps) {
+        this.setState({ Loans: nextProps.data.loans });  
     }
 
 render() { 
