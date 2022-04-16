@@ -12,6 +12,8 @@ contract InstaMoney {
         uint id;
         string name;
         string identification;
+        uint credit_score;
+        bool signed_collateral_agreement;
     }
 
     struct Loan {
@@ -99,13 +101,23 @@ contract InstaMoney {
         return amount * rate * no_of_minutes / 100 / 365 / 60 / 24;
     }
 
+//aamir register
+    function borrowReg(string memory borrower_name, string memory identification, uint credit_score, bool signed_collateral_agreement) public payable {
+
+          if (users[msg.sender].id == 0) {
+            User memory user = User({id: user_id_counter++, name: borrower_name, identification: identification , credit_score:credit_score , signed_collateral_agreement:signed_collateral_agreement});
+            users[msg.sender] = user;
+        }
+
+    }
+
     function takeLoan(string memory borrower_name, string memory identification,
         uint loan_id, uint credit_score, bool signed_collateral_agreement) public payable {
         require(credit_score >= 600, "We can't lend to low credit borrowers");
         require(signed_collateral_agreement, "We can't lend without you agreeing for the collateral");
         
         if (users[msg.sender].id == 0) {
-            User memory user = User({id: user_id_counter++, name: borrower_name, identification: identification});
+            User memory user = User({id: user_id_counter++, name: borrower_name, identification: identification,credit_score:credit_score,signed_collateral_agreement:signed_collateral_agreement});
             users[msg.sender] = user;
         }
 
@@ -127,7 +139,7 @@ contract InstaMoney {
         require(msg.value != 0, "Poor you. Please offer some money at least");
         require(term != 0, "term cannot be 0 months");
         if (users[msg.sender].id == 0) {
-            User memory user = User({id: user_id_counter++, name: lender_name, identification: identification});
+            User memory user = User({id: user_id_counter++, name: lender_name, identification: identification,credit_score:0,signed_collateral_agreement:false});
             users[msg.sender] = user;
         }
 
@@ -140,6 +152,8 @@ contract InstaMoney {
 
         //if this fails, all the above state changes will be reverted
     }
+
+
 
     function getBal() public view returns(uint){
         return address(this).balance;
