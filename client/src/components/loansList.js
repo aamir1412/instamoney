@@ -36,6 +36,9 @@ class LoansList extends Component {
         renderCell: (params) => {
           console.log(params);
           const onClick = (id, e) => {
+            if (!window.confirm("Are you sure? Confirm")) {
+              return false;
+            }
             e.stopPropagation(); // don't select this row after clicking
             console.log(e, id);
             // const api = params.api;
