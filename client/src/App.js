@@ -289,26 +289,16 @@ class App extends Component {
                   </Typography>{" "}
                   <LoansList data={this.state} />
                 </CardContent>
+                {this.state.currTab === 1 ? (
                 <CardContent>
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
                   <BorrowerLoansList data={this.state} />
                 </CardContent>
+                ): null}
               </Card>
             </Grid>
-            {this.state.currTab === 2 ? (
-              <Grid item xs={12} md={12}>
-                <Card sx={{ minWidth: 275 }}>
-                  <CardContent>
-                    {/* <Typography variant="h5" gutterBottom component="div">
-                      My Loans
-                    </Typography> */}
-                    {/* <LoansList data={this.state} /> */}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ) : null}
           </Grid>
         </div>
       </div>

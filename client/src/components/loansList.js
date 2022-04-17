@@ -141,11 +141,11 @@ class LoansList extends Component {
         interest: lenderDetail[4],
       });
     }
-
+    
     return (
       <div className="LoansList">
         <div>
-          {<h1>{this.props.data.currTab === 0 && "All Loans"}</h1>}
+          {<h1>{this.props.data.currTab === 0 && "Your Open Offers"}</h1>}
           {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
 
           <div style={{ height: 400, width: "100%" }}>
