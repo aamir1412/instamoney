@@ -9,7 +9,7 @@ class LoansList extends Component {
   constructor(props) {
     super(props);
     var filteredLoans = props.data.loans.filter(function(l) {
-      return l.status == "3";  //only open loans can be taken
+      return l.status === "3";  //only open loans can be taken
     });
     // console.log("ZZZ -> ", props.data.loans);
     this.state = {
@@ -19,7 +19,7 @@ class LoansList extends Component {
 
   componentWillReceiveProps(nextProps) {
     var filteredLoans = nextProps.data.loans.filter(function(l) {
-      return l.status == "3";  //only open loans can be taken
+      return l.status === "3";  //only open loans can be taken
     });
 
     // console.log("QQQ -> ", nextProps.data.loans);
@@ -49,7 +49,6 @@ class LoansList extends Component {
             // }
 
             if (this.props.data.currTab === 1) {
-              console.log(row);
               const {
                 accounts,
                 contract,
@@ -58,15 +57,6 @@ class LoansList extends Component {
                 formcredit,
                 signedAgreement,
               } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
 
               const response = await contract.methods
                 .takeLoan(
@@ -77,12 +67,12 @@ class LoansList extends Component {
                   signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Taken"))
+                .then(this.props.refreshcallback)
                 .catch((err) => console.log(err));
             }
             if (this.props.data.currTab === 0) {
-              console.log("cancel offer");
-              console.log(row);
+              // console.log("cancel offer");
+              // console.log(row);
               const {
                 accounts,
                 contract,
@@ -91,15 +81,6 @@ class LoansList extends Component {
                 formcredit,
                 signedAgreement,
               } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
 
               const response = await contract.methods
                 .cancelOffer(
@@ -110,7 +91,7 @@ class LoansList extends Component {
                   // signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Cancelled"))
+                .then(this.props.refreshcallback)
                 .catch((err) => console.log(err));
             }
 

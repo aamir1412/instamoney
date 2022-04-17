@@ -20,9 +20,6 @@ class BorrowerLoansList extends Component {
     var filteredLoans = nextProps.data.loans.filter(function(l) {
       return l.borrower === nextProps.data.accounts[0];
     });
-
-    console.log("QQQ -> ", nextProps.data.loans);
-    console.log("QQQ -> ", nextProps.data.accounts[0]);
     
     this.setState({ Loans: filteredLoans });
   }
@@ -51,8 +48,8 @@ class BorrowerLoansList extends Component {
             //   "ether"
             // );
             if (1 === 1) {
-              console.log("cancel offer");
-              console.log(row);
+              // console.log("cancel offer");
+              // console.log(row);
               const {
                 accounts,
                 contract,
@@ -62,16 +59,6 @@ class BorrowerLoansList extends Component {
                 signedAgreement,
               } = this.props.data;
 
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
-              console.log(amount);
-              console.log("show", accounts[0], amount);
               const response = await contract.methods
                 .findRemainingAmt(
                   // formname,
@@ -84,7 +71,7 @@ class BorrowerLoansList extends Component {
                 .then((res) => console.log("Amount Repaid"))
                 .catch((err) => console.log(err));
             }
-            console.log("Outstanding", this.response);
+            //console.log("Outstanding", this.response);
             e.stopPropagation(); // don't select this row after clicking
           };
 
@@ -104,11 +91,7 @@ class BorrowerLoansList extends Component {
     const rows = [];
     for (var elem in this.props.data.loans) {
       const lenderDetail = this.props.data.loans[elem];
-      console.log(
-        lenderDetail[5],
-        lenderDetail[6],
-        this.props.data.accounts[0]
-      );
+      
       if (
         lenderDetail[6] === this.props.data.accounts[0]
         // lenderDetail[6] is Borrower Account

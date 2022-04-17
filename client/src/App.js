@@ -112,7 +112,7 @@ class App extends Component {
   handleFormSubmitLender = async (e) => {
     e.preventDefault();
 
-    console.log("Btn lender");
+    // console.log("Btn lender");
     const {
       accounts,
       contract,
@@ -124,14 +124,14 @@ class App extends Component {
     } = this.state;
 
     const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
-    console.log(formname, amountInWei, formidn, formterm, formrate);
+    // console.log(formname, amountInWei, formidn, formterm, formrate);
 
     // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
     // ^use this while receiving and sending ethers
     const response = await contract.methods
       .offerLoan(formname, formidn, formterm, formrate)
       .send({ from: accounts[0], value: amountInWei })
-      .then((res) => this.getAllLoans(res))
+      .then(this.getAllLoans)
       .catch((err) => console.log(err));
   };
 
@@ -143,12 +143,12 @@ class App extends Component {
     this.setState({ loans: response });
   };
 
-  getAllLoans = async (res) => {
-    console.log("Success", res);
+  getAllLoans = async () => {
+    // console.log("Success", res);
     const { accounts, contract } = this.state;
 
     const response = await contract.methods.getAllLoans().call();
-    console.log("WWW Got ->", response);
+    // console.log("WWW Got ->", response);
 
     this.setState({ loans: response });
   };
@@ -287,14 +287,14 @@ class App extends Component {
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
-                  <LoansList data={this.state} />
+                  <LoansList data={this.state} refreshcallback = {this.getAllLoans}/>
                 </CardContent>
                 {this.state.currTab === 1 ? (
                 <CardContent>
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
-                  <BorrowerLoansList data={this.state} />
+                  <BorrowerLoansList data={this.state} refreshcallback = {this.getAllLoans}/>
                 </CardContent>
                 ): null}
               </Card>
