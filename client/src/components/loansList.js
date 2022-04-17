@@ -131,7 +131,7 @@ class LoansList extends Component {
 
     const rows = [];
     for (var elem in this.props.data.loans) {
-      const lenderDetail = this.props.data.loans[elem];
+      const lenderDetail = this.props.data.loans[elem]; //this.props.data.loans[elem] ===
       rows.push({
         id: lenderDetail[0],
         lender: lenderDetail[5],
@@ -147,6 +147,7 @@ class LoansList extends Component {
         <div>
           {<h1>{this.props.data.currTab === 0 && "All Loans"}</h1>}
           {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
+
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
               key={rows.length}

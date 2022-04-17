@@ -94,11 +94,14 @@ class BorrowerLoansList extends Component {
     const rows = [];
     for (var elem in this.props.data.loans) {
       const lenderDetail = this.props.data.loans[elem];
-      // console.log(lenderDetail[5], lenderDetail[6], this.props.data.accounts);
+      console.log(
+        lenderDetail[5],
+        lenderDetail[6],
+        this.props.data.accounts[0]
+      );
       if (
-        1 === 1
-        // lenderDetail[5] === this.props.data.accounts[0] &&
-        // lenderDetail[6] != this.props.data.accounts[0]
+        lenderDetail[6] === this.props.data.accounts[0]
+        // lenderDetail[6] is Borrower Account
       ) {
         rows.push({
           id: lenderDetail[0],
