@@ -22,7 +22,7 @@ import Typography from "@mui/material/Typography";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import "./App.css";
-
+import BorrowerLoansList from "./components/borrowerloanslist.js";
 const useStyles = (theme) => ({
   formfield: {
     marginTop: 20,
@@ -290,6 +290,14 @@ class App extends Component {
                       : "Available Loans"}
                   </Typography>{" "}
                   <LoansList data={this.state} />
+                </CardContent>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom component="div">
+                    {this.state.currTab === 0
+                      ? "Loans you have offered"
+                      : "Available Loans"}
+                  </Typography>{" "}
+                  <BorrowerLoansList data={this.state} />
                 </CardContent>
               </Card>
             </Grid>

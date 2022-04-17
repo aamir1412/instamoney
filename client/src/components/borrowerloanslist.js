@@ -5,7 +5,7 @@ import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
 //import { DataGrid } from "@mui/x-data-grid";
-class LoansList extends Component {
+class BorrowerLoansList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -92,7 +92,7 @@ class LoansList extends Component {
               );
 
               const response = await contract.methods
-                .cancelOffer(
+                .payoffloan(
                   // formname,
                   // formidn,
                   row.row.id
@@ -107,21 +107,13 @@ class LoansList extends Component {
             e.stopPropagation(); // don't select this row after clicking
           };
 
-          return this.props.data.currTab === 1 ? (
+          return (
             <Button
               color="secondary"
               variant="outlined"
               onClick={onClick.bind(this, params)}
             >
-              Confirm
-            </Button>
-          ) : (
-            <Button
-              color="secondary"
-              variant="outlined"
-              onClick={onClick.bind(this, params)}
-            >
-              Cancel
+              Pay Off
             </Button>
           );
         },
@@ -131,20 +123,26 @@ class LoansList extends Component {
     const rows = [];
     for (var elem in this.props.data.loans) {
       const lenderDetail = this.props.data.loans[elem];
-      rows.push({
-        id: lenderDetail[0],
-        lender: lenderDetail[5],
-        borrower: lenderDetail[6],
-        amount: this.props.data.web3.utils.fromWei(lenderDetail[1], "ether"),
-        term: lenderDetail.term,
-        interest: lenderDetail[4],
-      });
+      // console.log(lenderDetail[5], lenderDetail[6], this.props.data.accounts);
+      if (
+        lenderDetail[6] === this.props.data.accounts[0] &&
+        lenderDetail[5] != this.props.data.accounts[0]
+      ) {
+        rows.push({
+          id: lenderDetail[0],
+          lender: lenderDetail[5],
+          borrower: lenderDetail[6],
+          amount: this.props.data.web3.utils.fromWei(lenderDetail[1], "ether"),
+          term: lenderDetail.term,
+          interest: lenderDetail[4],
+        });
+      }
     }
 
     return (
-      <div className="LoansList">
+      <div className="BorrowerLoansList">
         <div>
-          <h1>Loans</h1>
+          <h1>My Loans</h1>
 
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
@@ -163,4 +161,4 @@ class LoansList extends Component {
   }
 }
 
-export default LoansList;
+export default BorrowerLoansList;
