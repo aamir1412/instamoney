@@ -87,6 +87,7 @@ class LoansList extends Component {
                   ToastsStore.success('Loan Confirmed! Amount transferred to your account');
                   this.props.refreshcallback();
                 }).catch(function(err){
+                  console.log("EEE->", err);
                   ToastsStore.error(err.message, 8000);
                 });
             }
@@ -156,7 +157,7 @@ class LoansList extends Component {
         interest: lenderDetail[4],
       });
     }
-    
+    console.log("QQQ->", rows);
     return (
       <div className="LoansList">
         <div>

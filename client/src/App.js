@@ -146,13 +146,19 @@ class App extends Component {
   };
 
   getAllLoans = async () => {
+    console.log("UUU");
     // console.log("Success", res);
     const { accounts, contract } = this.state;
+
+    console.log("UUUU");
 
     const response = await contract.methods.getAllLoans().call();
     // console.log("WWW Got ->", response);
 
+    console.log("UUUUU");
     this.setState({ loans: response });
+
+    console.log("UUUUUU");
   };
 
   render() {

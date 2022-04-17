@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid, GridColDef, GridApi, GridCellValue } from "@mui/x-data-grid";
 import React from "react";
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
@@ -42,36 +43,24 @@ class BorrowerLoansList extends Component {
         sortable: false,
         renderCell: (params) => {
           const onClick = async (row, e) => {
-            let amount = parseInt(prompt("Please enter your repayment amount"));
-            // const amountInWei = this.state.web3.utils.toWei(
-            //   formamount,
-            //   "ether"
-            // );
-            if (1 === 1) {
-              // console.log("cancel offer");
-              // console.log(row);
-              const {
-                accounts,
-                contract,
-                formname,
-                formidn,
-                formcredit,
-                signedAgreement,
-              } = this.props.data;
+            // let amount = parseInt(prompt("Please enter your repayment amount"));
+            const {
+              accounts,
+              contract
+            } = this.props.data;
 
-              const response = await contract.methods
-                .findRemainingAmt(
-                  // formname,
-                  // formidn,
-                  row.row.id
-                  // formcredit,
-                  // signedAgreement
-                )
-                .send({ from: accounts[0] }) //, amount: amount
-                .then((res) => console.log("Amount Repaid"))
-                .catch((err) => console.log(err));
-            }
-            //console.log("Outstanding", this.response);
+            const remainingAmount = await contract.methods.findRemainingAmt(row.row.id).call();
+            console.log("remainingAmount", remainingAmount);
+            const response = await contract.methods
+              .payOffLoan(row.row.id)
+              .send({ from: accounts[0], value: remainingAmount})
+              .then(function(res) {
+                ToastsStore.success('Loan Paid Off! Amount transferred to lender');
+                this.props.refreshcallback();
+              }).catch(function(err){
+                console.log("WWW->", err);
+                ToastsStore.error(err.message, 8000);
+              });
             e.stopPropagation(); // don't select this row after clicking
           };
 
@@ -91,6 +80,7 @@ class BorrowerLoansList extends Component {
     const rows = [];
     for (var elem in this.props.data.loans) {
       const lenderDetail = this.props.data.loans[elem];
+      // console.log("QQQ", lenderDetail);
       
       if (
         lenderDetail[6] === this.props.data.accounts[0]
