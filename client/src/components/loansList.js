@@ -34,24 +34,41 @@ class LoansList extends Component {
         headerName: "Action",
         sortable: false,
         renderCell: (params) => {
-          console.log("QQQ -> ", params);
-          const onClick = (row, e) => {
-            console.log("ZZZ-> ", row.row);
-            if (!window.confirm("Are you sure? Confirm")) {
-              return false;
-            }
+          const onClick = async (row, e) => {
+            // if (!window.confirm("Are you sure? Confirm")) {
+            //   return false;
+            // }
+
+            const {
+              accounts,
+              contract,
+              formname,
+              formidn,
+              formcredit,
+              signedAgreement,
+            } = this.props.data;
+
+            console.log(
+              "ZZZ-> ",
+              formname,
+              formidn,
+              row.row.id,
+              formcredit,
+              signedAgreement
+            );
+            const response = await contract.methods
+              .takeLoan(
+                formname,
+                formidn,
+                row.row.id,
+                formcredit,
+                signedAgreement
+              )
+              .send({ from: accounts[0] })
+              .then((res) => console.log("Loan Taken"))
+              .catch((err) => console.log(err));
+
             e.stopPropagation(); // don't select this row after clicking
-            // const api = params.api;
-            // const thisRow = {};
-
-            // api
-            //   .getAllColumns()
-            //   .filter((c) => c.field !== "__check__" && !!c)
-            //   .forEach(
-            //     (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-            //   );
-
-            // return alert(JSON.stringify(thisRow, null, 4));
           };
 
           return this.props.data.currTab === 1 ? (
