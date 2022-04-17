@@ -5,7 +5,7 @@ import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
 //import { DataGrid } from "@mui/x-data-grid";
-class LoansList extends Component {
+class BorrowerLoansList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -35,43 +35,12 @@ class LoansList extends Component {
         sortable: false,
         renderCell: (params) => {
           const onClick = async (row, e) => {
-            // if (!window.confirm("Are you sure? Confirm")) {
-            //   return false;
-            // }
-
-            if (this.props.data.currTab === 1) {
-              console.log(row);
-              const {
-                accounts,
-                contract,
-                formname,
-                formidn,
-                formcredit,
-                signedAgreement,
-              } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
-
-              const response = await contract.methods
-                .takeLoan(
-                  formname,
-                  formidn,
-                  row.row.id,
-                  formcredit,
-                  signedAgreement
-                )
-                .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Taken"))
-                .catch((err) => console.log(err));
-            }
-            if (this.props.data.currTab === 0) {
+            let amount = parseInt(prompt("Please enter your repayment amount"));
+            // const amountInWei = this.state.web3.utils.toWei(
+            //   formamount,
+            //   "ether"
+            // );
+            if (1 === 1) {
               console.log("cancel offer");
               console.log(row);
               const {
@@ -91,38 +60,31 @@ class LoansList extends Component {
                 formcredit,
                 signedAgreement
               );
-
+              console.log(amount);
+              console.log("show", accounts[0], amount);
               const response = await contract.methods
-                .cancelOffer(
+                .findRemainingAmt(
                   // formname,
                   // formidn,
                   row.row.id
                   // formcredit,
                   // signedAgreement
                 )
-                .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Cancelled"))
+                .send({ from: accounts[0] }) //, amount: amount
+                .then((res) => console.log("Amount Repaid"))
                 .catch((err) => console.log(err));
             }
-
+            console.log("Outstanding", this.response);
             e.stopPropagation(); // don't select this row after clicking
           };
 
-          return this.props.data.currTab === 1 ? (
+          return (
             <Button
               color="secondary"
               variant="outlined"
               onClick={onClick.bind(this, params)}
             >
-              Confirm
-            </Button>
-          ) : (
-            <Button
-              color="secondary"
-              variant="outlined"
-              onClick={onClick.bind(this, params)}
-            >
-              Cancel
+              Pay Off
             </Button>
           );
         },
@@ -131,22 +93,31 @@ class LoansList extends Component {
 
     const rows = [];
     for (var elem in this.props.data.loans) {
-      const lenderDetail = this.props.data.loans[elem]; //this.props.data.loans[elem] ===
-      rows.push({
-        id: lenderDetail[0],
-        lender: lenderDetail[5],
-        borrower: lenderDetail[6],
-        amount: this.props.data.web3.utils.fromWei(lenderDetail[1], "ether"),
-        term: lenderDetail.term,
-        interest: lenderDetail[4],
-      });
+      const lenderDetail = this.props.data.loans[elem];
+      console.log(
+        lenderDetail[5],
+        lenderDetail[6],
+        this.props.data.accounts[0]
+      );
+      if (
+        lenderDetail[6] === this.props.data.accounts[0]
+        // lenderDetail[6] is Borrower Account
+      ) {
+        rows.push({
+          id: lenderDetail[0],
+          lender: lenderDetail[5],
+          borrower: lenderDetail[6],
+          amount: this.props.data.web3.utils.fromWei(lenderDetail[1], "ether"),
+          term: lenderDetail.term,
+          interest: lenderDetail[4],
+        });
+      }
     }
 
     return (
-      <div className="LoansList">
+      <div className="BorrowerLoansList">
         <div>
-          {<h1>{this.props.data.currTab === 0 && "All Loans"}</h1>}
-          {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
+          <h1>My Loans</h1>
 
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
@@ -165,4 +136,4 @@ class LoansList extends Component {
   }
 }
 
-export default LoansList;
+export default BorrowerLoansList;

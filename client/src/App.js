@@ -22,7 +22,7 @@ import Typography from "@mui/material/Typography";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import "./App.css";
-
+import BorrowerLoansList from "./components/borrowerloanslist.js";
 const useStyles = (theme) => ({
   formfield: {
     marginTop: 20,
@@ -109,34 +109,10 @@ class App extends Component {
     this.setState({ signedAgreement });
   };
 
-  handleFormSubmit = async (e) => {
+  handleFormSubmitLender = async (e) => {
     e.preventDefault();
 
-    if (this.state.currTab === 1) {
-      const {
-        accounts,
-        contract,
-        formname,
-        formamount,
-        formidn,
-        formcredit,
-        signedAgreement,
-      } = this.state;
-
-      const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
-      console.log(formname, formamount, formcredit, signedAgreement);
-
-      // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
-      // ^use this while receiving and sending ethers
-      const response = await contract.methods
-        .borrowReg(formname, formidn, formcredit, signedAgreement)
-        .send({ from: accounts[0] })
-        .then((res) => this.getAllLoans(res))
-        .catch((err) => console.log(err));
-
-      return;
-    }
-
+    console.log("Btn lender");
     const {
       accounts,
       contract,
@@ -158,6 +134,8 @@ class App extends Component {
       .then((res) => this.getAllLoans(res))
       .catch((err) => console.log(err));
   };
+
+  handleFormSubmitBorrower = async (e) => {};
 
   initialSetup = async () => {
     const { accounts, contract } = this.state;
@@ -197,7 +175,11 @@ class App extends Component {
                   <form
                     noValidate
                     autoComplete="off"
-                    onSubmit={this.handleFormSubmit}
+                    onSubmit={
+                      this.state.currTab === 0
+                        ? this.handleFormSubmitLender
+                        : this.handleFormSubmitBorrower
+                    }
                   >
                     <TextField
                       onChange={this.handleNameChange}
@@ -210,17 +192,19 @@ class App extends Component {
                       required
                     />
 
-                    <TextField
-                      type="number"
-                      onChange={this.handleAmtChange}
-                      value={this.state.formamount}
-                      className={classes.formfield}
-                      label="Amount"
-                      variant="outlined"
-                      color="secondary"
-                      fullWidth
-                      required
-                    />
+                    {this.state.currTab === 0 && (
+                      <TextField
+                        type="number"
+                        onChange={this.handleAmtChange}
+                        value={this.state.formamount}
+                        className={classes.formfield}
+                        label="Amount"
+                        variant="outlined"
+                        color="secondary"
+                        fullWidth
+                        required
+                      />
+                    )}
                     <TextField
                       onChange={this.handleFormIdnChange}
                       value={this.state.formidn}
@@ -283,14 +267,16 @@ class App extends Component {
                       />
                     )}
 
-                    <Button
-                      type="submit"
-                      color="secondary"
-                      variant="outlined"
-                      endIcon={<KeyboardArrowRight />}
-                    >
-                      {this.state.currTab === 0 ? "Lend Money" : "Register"}
-                    </Button>
+                    {this.state.currTab === 0 ? (
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        variant="outlined"
+                        endIcon={<KeyboardArrowRight />}
+                      >
+                        {this.state.currTab === 0 ? "Lend Money" : "Register"}
+                      </Button>
+                    ) : null}
                   </form>
                 </CardContent>
               </Card>
@@ -299,21 +285,25 @@ class App extends Component {
               <Card sx={{ minWidth: 275 }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom component="div">
-                    {this.state.currTab === 0
-                      ? "Loans you have offered"
-                      : "Available Loans"}
+                    {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
                   <LoansList data={this.state} />
                 </CardContent>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom component="div">
+                    {this.state.currTab === 0 ? "" : ""}
+                  </Typography>{" "}
+                  <BorrowerLoansList data={this.state} />
+                </CardContent>
               </Card>
             </Grid>
-            {this.state.currTab === 1 ? (
+            {this.state.currTab === 2 ? (
               <Grid item xs={12} md={12}>
                 <Card sx={{ minWidth: 275 }}>
                   <CardContent>
-                    <Typography variant="h5" gutterBottom component="div">
-                      Open Offers
-                    </Typography>
+                    {/* <Typography variant="h5" gutterBottom component="div">
+                      My Loans
+                    </Typography> */}
                     {/* <LoansList data={this.state} /> */}
                   </CardContent>
                 </Card>
