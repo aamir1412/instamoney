@@ -1,3 +1,5 @@
+//SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
@@ -64,8 +66,7 @@ contract InstaMoney {
         //Even the lender or government can pay off if they are willing to forgive the loan
         require(loans[at_index].status == 1, "Loan is not active");
 
-        Loan memory curr = loans[at_index];
-        uint to_repay = calculateRepaymentAmount(curr);
+        uint to_repay = calculateRepaymentAmount(loan_id);
 
         require(msg.value <= to_repay , "Please don't transfer extra amount");
 
@@ -77,29 +78,24 @@ contract InstaMoney {
         payable(loans[at_index].lender).transfer(msg.value);
     }
 
-    function findRemainingAmt(uint loan_id) public view returns(uint){
+    function calculateRepaymentAmount(uint loan_id) public view returns(uint) {
+
         (uint at_index, bool found) = find_offer(loan_id);
         if(!found) return 0;
 
-        Loan memory curr = loans[at_index];
-        if(curr.status != 1) return 0;      //is not an active loan
+        if(loans[at_index].status != 1) return 0;      //is not an active loan
 
-        return calculateRepaymentAmount(curr);
-    }
+        uint principal = loans[at_index].amount;
 
-    function calculateRepaymentAmount(Loan memory curr) private view returns(uint) {
-        uint principal = curr.amount;
-
-        uint time_elapsed_in_minutes = (now - curr.activated_at) / 60;
-        uint interest = calcInterest(curr.amount, curr.rate, time_elapsed_in_minutes);
+        uint time_elapsed_in_minutes = (now - loans[at_index].activated_at) / 60;
+        uint interest = calcInterest(loans[at_index].amount, loans[at_index].rate, time_elapsed_in_minutes);
 
         uint late_amt = 0;
-        if(now - (curr.term * 30 days) > curr.activated_at) {
+        if(now - (loans[at_index].term * 30 days) > loans[at_index].activated_at) {
             //Repayment is late
             late_amt = late_fine;
         }
-        
-        return principal + interest + late_amt - curr.repaid_amt;
+        return principal + interest + late_amt - loans[at_index].repaid_amt;
     }
 
     function calcInterest(uint amount, uint rate, uint no_of_minutes) private pure returns(uint) {
