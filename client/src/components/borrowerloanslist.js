@@ -34,7 +34,7 @@ class BorrowerLoansList extends Component {
       { field: "amount", headerName: "Amount", width: 150 },
       { field: "term", headerName: "Term", width: 130 },
 
-      { field: "interest", headerName: "Interest", width: 130 },
+      { field: "interest", headerName: "Interest", width: 100 },
 
       //aamir
       {
@@ -72,6 +72,48 @@ class BorrowerLoansList extends Component {
               onClick={onClick.bind(this, params)}
             >
               Pay Off
+            </Button>
+          );
+        },
+      },
+      {
+        field: "partialpay",
+        headerName: "Pay Partial",
+        sortable: false,
+        width: 150,
+        renderCell: (params) => {
+          const onClick = async (row, e) => {
+            let amount = parseInt(prompt("Please enter your repayment amount"));
+            const amountInWei = this.state.web3.utils.toWei(amount, "ether");
+            const {
+              accounts,
+              contract
+            } = this.props.data;
+
+            const response = await contract.methods
+              .payOffLoan(row.row.id)
+              .send({ from: accounts[0], value: amountInWei})
+              .then(function(res) {
+                ToastsStore.success('Partilly Paid! Amount transferred to lender');
+                console.log("WWW->", this.props);
+                this.props.refreshcallback();
+              }).catch(function(err){
+                console.log("WWW->", err);
+                ToastsStore.error(err.message, 8000);
+              });
+
+              const remainingAmount = await contract.methods.findRemainingAmt(row.row.id).call();
+              ToastsStore.success('Remaining Amount is : ' + remainingAmount + 'Wei');
+            e.stopPropagation(); // don't select this row after clicking
+          };
+
+          return (
+            <Button
+              color="secondary"
+              variant="outlined"
+              onClick={onClick.bind(this, params)}
+            >
+              Pay Partial
             </Button>
           );
         },
