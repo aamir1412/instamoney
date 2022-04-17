@@ -38,55 +38,87 @@ class LoansList extends Component {
             // if (!window.confirm("Are you sure? Confirm")) {
             //   return false;
             // }
+            if (this.props.data.currTab === 1) {
+              console.log(row);
+              const {
+                accounts,
+                contract,
+                formname,
+                formidn,
+                formcredit,
+                signedAgreement,
+              } = this.props.data;
 
-            const {
-              accounts,
-              contract,
-              formname,
-              formidn,
-              formcredit,
-              signedAgreement,
-            } = this.props.data;
-
-            console.log(
-              "ZZZ-> ",
-              formname,
-              formidn,
-              row.row.id,
-              formcredit,
-              signedAgreement
-            );
-            const response = await contract.methods
-              .takeLoan(
+              console.log(
+                "ZZZ-> ",
                 formname,
                 formidn,
                 row.row.id,
                 formcredit,
                 signedAgreement
-              )
-              .send({ from: accounts[0] })
-              .then((res) => console.log("Loan Taken"))
-              .catch((err) => console.log(err));
+              );
+
+              const response = await contract.methods
+                .takeLoan(
+                  formname,
+                  formidn,
+                  row.row.id,
+                  formcredit,
+                  signedAgreement
+                )
+                .send({ from: accounts[0] })
+                .then((res) => console.log("Loan Taken"))
+                .catch((err) => console.log(err));
+            }
+            if (this.props.data.currTab === 0) {
+              console.log("cancel offer");
+              console.log(row);
+              const {
+                accounts,
+                contract,
+                formname,
+                formidn,
+                formcredit,
+                signedAgreement,
+              } = this.props.data;
+
+              console.log(
+                "ZZZ-> ",
+                formname,
+                formidn,
+                row.row.id,
+                formcredit,
+                signedAgreement
+              );
+
+              const response = await contract.methods
+                .cancelOffer(
+                  // formname,
+                  // formidn,
+                  row.row.id
+                  // formcredit,
+                  // signedAgreement
+                )
+                .send({ from: accounts[0] })
+                .then((res) => console.log("Loan Cancelled"))
+                .catch((err) => console.log(err));
+            }
 
             e.stopPropagation(); // don't select this row after clicking
           };
 
           return this.props.data.currTab === 1 ? (
             <Button
-              //   type="submit"
               color="secondary"
               variant="outlined"
-              //   endIcon={<KeyboardArrowRight />}
               onClick={onClick.bind(this, params)}
             >
               Confirm
             </Button>
           ) : (
             <Button
-              //   type="submit"
               color="secondary"
               variant="outlined"
-              //   endIcon={<KeyboardArrowRight />}
               onClick={onClick.bind(this, params)}
             >
               Cancel
@@ -94,21 +126,6 @@ class LoansList extends Component {
           );
         },
       },
-      //   {
-      //     field: "age",
-      //     headerName: "Age",
-      //     type: "number",
-      //     width: 90,
-      //   },
-      //   {
-      //     field: "fullName",
-      //     headerName: "Full name",
-      //     description: "This column has a value getter and is not sortable.",
-      //     sortable: false,
-      //     width: 160,
-      //     valueGetter: (params) =>
-      //       `${params.row.firstName || ""} ${params.row.lastName || ""}`,
-      //   },
     ];
 
     const rows = [];
@@ -122,48 +139,12 @@ class LoansList extends Component {
         term: lenderDetail.term,
         interest: lenderDetail[4],
       });
-      //   console.log({
-      //     id: elem[0],
-      //     lender: elem[0],
-      //     borrower: elem[0],
-      //     amount: elem[0],
-      //   });
     }
-
-    // const rows = Object.map(this.props.data.loans, (elem) => {
-    //   return {
-    //     id: elem[0],
-    //     lender: elem[0],
-    //     borrower: elem[0],
-    //     amount: elem[0],
-    //   };
-    // });
 
     return (
       <div className="LoansList">
         <div>
           <h1>Loans</h1>
-          {/* <table>
-            <thead>
-              {
-                <tr>
-                  <th>ID</th>
-                  <th>Lender</th>
-                  <th>Borrower</th>
-                  <th>Amount</th>
-                  <th>Rate</th>
-                  <th>Term</th>
-                  <th>Status</th>
-                  <th>Repaid Amount</th>
-                </tr>
-              }
-            </thead>
-            <tbody>
-              {this.state.Loans.map((loan, i) => (
-                <LoanLineItem key={i} {...loan} />
-              ))}
-            </tbody>
-          </table> */}
 
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
