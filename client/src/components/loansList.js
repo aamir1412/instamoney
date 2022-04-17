@@ -18,7 +18,7 @@ class LoansList extends Component {
   }
 
   render() {
-    console.log(this.props.data.loans, "This is the Loans Lended by Lender");
+    // console.log(this.props.data.loans, "This is the Loans Lended by Lender");
     const columns = [
       { field: "id", headerName: "ID", width: 70 },
       { field: "lender", headerName: "Lender", width: 200 },
