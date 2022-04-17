@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Box from '@material-ui/core/Box';
 import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
 import {ToastsContainer, ToastsStore} from 'react-toasts';
@@ -178,6 +179,7 @@ class App extends Component {
               <Tab label="Borrow" />
             </Tabs>
           </AppBar>
+          <Box m={1}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
               <Card sx={{ minWidth: 275 }}>
@@ -310,6 +312,7 @@ class App extends Component {
               </Card>
             </Grid>
           </Grid>
+          </Box>
         </div>
       </div>
     );
