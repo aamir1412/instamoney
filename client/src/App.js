@@ -145,6 +145,10 @@ class App extends Component {
     const { accounts, contract } = this.state;
     const response = await contract.methods.getAllLoans().call();
     this.setState({ loans: response });
+    const userdetails = await contract.methods.getUserDetails().call();
+    console.log('userdetails', userdetails);
+
+    this.setState({formname: userdetails.name, formidn: userdetails.identification});
   };
 
   getAllLoans = async () => {
@@ -195,7 +199,7 @@ class App extends Component {
                   >
                     <TextField
                       onChange={this.handleNameChange}
-                      value={this.state.formname}
+                      value={this.state.formname || ''}
                       className={classes.formfield}
                       label="Name"
                       variant="outlined"
@@ -219,7 +223,7 @@ class App extends Component {
                     )}
                     <TextField
                       onChange={this.handleFormIdnChange}
-                      value={this.state.formidn}
+                      value={this.state.formidn || ''}
                       className={classes.formfield}
                       label="Identification (SSN/PAN)"
                       variant="outlined"

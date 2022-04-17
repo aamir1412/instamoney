@@ -37,6 +37,11 @@ contract InstaMoney {
         _;
     }
 
+    function getUserDetails() public view returns (User memory){
+        return users[msg.sender];
+    }
+
+
     function getLateFine() public view returns(uint){
         return late_fine;
     }
