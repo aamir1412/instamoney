@@ -37,8 +37,8 @@ contract InstaMoney {
         _;
     }
 
-    function getUserDetails() public view returns (User memory){
-        return users[msg.sender];
+    function getUserDetails(address addr) public view returns (User memory){
+        return users[addr];
     }
 
 

@@ -145,7 +145,8 @@ class App extends Component {
     const { accounts, contract } = this.state;
     const response = await contract.methods.getAllLoans().call();
     this.setState({ loans: response });
-    const userdetails = await contract.methods.getUserDetails().call();
+    console.log(accounts[0]);
+    const userdetails = await contract.methods.getUserDetails(accounts[0]).call();
     console.log('userdetails', userdetails);
 
     this.setState({formname: userdetails.name, formidn: userdetails.identification});
