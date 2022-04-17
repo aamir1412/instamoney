@@ -56,6 +56,7 @@ class BorrowerLoansList extends Component {
               .send({ from: accounts[0], value: remainingAmount})
               .then(function(res) {
                 ToastsStore.success('Loan Paid Off! Amount transferred to lender');
+                console.log("WWW->", this.props);
                 this.props.refreshcallback();
               }).catch(function(err){
                 console.log("WWW->", err);
@@ -78,8 +79,8 @@ class BorrowerLoansList extends Component {
     ];
 
     const rows = [];
-    for (var elem in this.props.data.loans) {
-      const lenderDetail = this.props.data.loans[elem];
+    for (var elem in this.state.Loans) {
+      const lenderDetail = this.state.Loans[elem];
       // console.log("QQQ", lenderDetail);
       
       if (
