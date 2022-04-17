@@ -192,17 +192,19 @@ class App extends Component {
                       required
                     />
 
-                    <TextField
-                      type="number"
-                      onChange={this.handleAmtChange}
-                      value={this.state.formamount}
-                      className={classes.formfield}
-                      label="Amount"
-                      variant="outlined"
-                      color="secondary"
-                      fullWidth
-                      required
-                    />
+                    {this.state.currTab === 0 && (
+                      <TextField
+                        type="number"
+                        onChange={this.handleAmtChange}
+                        value={this.state.formamount}
+                        className={classes.formfield}
+                        label="Amount"
+                        variant="outlined"
+                        color="secondary"
+                        fullWidth
+                        required
+                      />
+                    )}
                     <TextField
                       onChange={this.handleFormIdnChange}
                       value={this.state.formidn}

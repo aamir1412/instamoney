@@ -22,7 +22,7 @@ class LoansList extends Component {
     const columns = [
       { field: "id", headerName: "ID", width: 70 },
       { field: "lender", headerName: "Lender", width: 200 },
-      { field: "borrower", headerName: "Borrower", width: 200 },
+      //{ field: "borrower", headerName: "Borrower", width: 200 },
       { field: "amount", headerName: "Amount", width: 150 },
       { field: "term", headerName: "Term", width: 130 },
 
@@ -82,7 +82,15 @@ class LoansList extends Component {
               Confirm
             </Button>
           ) : (
-            <div></div>
+            <Button
+              //   type="submit"
+              color="secondary"
+              variant="outlined"
+              //   endIcon={<KeyboardArrowRight />}
+              onClick={onClick.bind(this, params)}
+            >
+              Cancel
+            </Button>
           );
         },
       },
@@ -109,7 +117,7 @@ class LoansList extends Component {
       rows.push({
         id: lenderDetail[0],
         lender: lenderDetail[5],
-        borrower: lenderDetail[6],
+        //borrower: lenderDetail[6],
         amount: this.props.data.web3.utils.fromWei(lenderDetail[1], "ether"),
         term: lenderDetail.term,
         interest: lenderDetail[4],
