@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import Box from '@material-ui/core/Box';
 import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
-
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 import { Route, Routes } from "react-router-dom";
 import MainNavigation from "./components/MainNavigation";
 import CurrDate from "./components/CurrDate";
@@ -112,7 +113,7 @@ class App extends Component {
   handleFormSubmitLender = async (e) => {
     e.preventDefault();
 
-    console.log("Btn lender");
+    // console.log("Btn lender");
     const {
       accounts,
       contract,
@@ -124,14 +125,17 @@ class App extends Component {
     } = this.state;
 
     const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
-    console.log(formname, amountInWei, formidn, formterm, formrate);
+    // console.log(formname, amountInWei, formidn, formterm, formrate);
 
     // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
     // ^use this while receiving and sending ethers
     const response = await contract.methods
       .offerLoan(formname, formidn, formterm, formrate)
       .send({ from: accounts[0], value: amountInWei })
-      .then((res) => this.getAllLoans(res))
+      .then(function(res) {
+        ToastsStore.success('Loan Posted On The Marketplace!');
+      })
+      .then(this.getAllLoans)
       .catch((err) => console.log(err));
   };
 
@@ -141,16 +145,27 @@ class App extends Component {
     const { accounts, contract } = this.state;
     const response = await contract.methods.getAllLoans().call();
     this.setState({ loans: response });
+    console.log(accounts[0]);
+    const userdetails = await contract.methods.getUserDetails(accounts[0]).call();
+    console.log('userdetails', userdetails);
+
+    this.setState({formname: userdetails.name, formidn: userdetails.identification});
   };
 
-  getAllLoans = async (res) => {
-    console.log("Success", res);
+  getAllLoans = async () => {
+    console.log("UUU");
+    // console.log("Success", res);
     const { accounts, contract } = this.state;
 
-    const response = await contract.methods.getAllLoans().call();
-    console.log("WWW Got ->", response);
+    console.log("UUUU");
 
+    const response = await contract.methods.getAllLoans().call();
+    // console.log("WWW Got ->", response);
+
+    console.log("UUUUU");
     this.setState({ loans: response });
+
+    console.log("UUUUUU");
   };
 
   render() {
@@ -160,6 +175,7 @@ class App extends Component {
     }
     return (
       <div className="App">
+        <ToastsContainer store={ToastsStore}/>
         <div>
           <MainNavigation />
           <AppBar position="static">
@@ -168,6 +184,7 @@ class App extends Component {
               <Tab label="Borrow" />
             </Tabs>
           </AppBar>
+          <Box m={1}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
               <Card sx={{ minWidth: 275 }}>
@@ -183,7 +200,7 @@ class App extends Component {
                   >
                     <TextField
                       onChange={this.handleNameChange}
-                      value={this.state.formname}
+                      value={this.state.formname || ''}
                       className={classes.formfield}
                       label="Name"
                       variant="outlined"
@@ -207,7 +224,7 @@ class App extends Component {
                     )}
                     <TextField
                       onChange={this.handleFormIdnChange}
-                      value={this.state.formidn}
+                      value={this.state.formidn || ''}
                       className={classes.formfield}
                       label="Identification (SSN/PAN)"
                       variant="outlined"
@@ -287,29 +304,20 @@ class App extends Component {
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
-                  <LoansList data={this.state} />
+                  <LoansList data={this.state} refreshcallback = {this.getAllLoans}/>
                 </CardContent>
+                {this.state.currTab === 1 ? (
                 <CardContent>
                   <Typography variant="h6" gutterBottom component="div">
                     {this.state.currTab === 0 ? "" : ""}
                   </Typography>{" "}
-                  <BorrowerLoansList data={this.state} />
+                  <BorrowerLoansList data={this.state} refreshcallback = {this.getAllLoans}/>
                 </CardContent>
+                ): null}
               </Card>
             </Grid>
-            {this.state.currTab === 2 ? (
-              <Grid item xs={12} md={12}>
-                <Card sx={{ minWidth: 275 }}>
-                  <CardContent>
-                    {/* <Typography variant="h5" gutterBottom component="div">
-                      My Loans
-                    </Typography> */}
-                    {/* <LoansList data={this.state} /> */}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ) : null}
           </Grid>
+          </Box>
         </div>
       </div>
     );

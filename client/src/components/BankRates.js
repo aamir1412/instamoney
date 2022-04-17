@@ -3,7 +3,7 @@ import React, { Component } from "react";
 
 function BankRates() {
   function confirmHandler() {
-    console.log(bank_rates[0].bank);
+    // console.log(bank_rates[0].bank);
   }
   const bank_rates = [
     { id: "b1", bank: "HDFC", rate: 11.25 },

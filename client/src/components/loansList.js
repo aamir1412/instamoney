@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid, GridColDef, GridApi, GridCellValue } from "@mui/x-data-grid";
 import React from "react";
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
@@ -8,13 +9,37 @@ import { Component } from "react";
 class LoansList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      Loans: this.props.data.loans,
-    };
+    if(this.props.data.currTab === 0){
+      var filteredLoans = props.data.loans.filter(function(l) {
+        return l.lender === props.data.accounts[0];  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    } else if (this.props.data.currTab === 1) {
+      var filteredLoans = props.data.loans.filter(function(l) {
+        return l.status === "3";  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ Loans: nextProps.data.loans });
+    var filteredLoans = [];
+    if(nextProps.data.currTab === 0){
+      var filteredLoans = nextProps.data.loans.filter(function(l) {
+        return l.lender === nextProps.data.accounts[0];  //only open loans can be taken
+      });
+    } else if (nextProps.data.currTab === 1) {
+      var filteredLoans = nextProps.data.loans.filter(function(l) {
+        return l.status === "3";  //only open loans can be taken
+      });
+    }
+
+    // console.log("QQQ -> ", nextProps.data.loans);
+    this.setState({ Loans: filteredLoans });
   }
 
   render() {
@@ -40,7 +65,6 @@ class LoansList extends Component {
             // }
 
             if (this.props.data.currTab === 1) {
-              console.log(row);
               const {
                 accounts,
                 contract,
@@ -49,15 +73,6 @@ class LoansList extends Component {
                 formcredit,
                 signedAgreement,
               } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
 
               const response = await contract.methods
                 .takeLoan(
@@ -68,12 +83,18 @@ class LoansList extends Component {
                   signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Taken"))
-                .catch((err) => console.log(err));
+                .then(function(res) {
+                  ToastsStore.success('Loan Confirmed! Amount transferred to your account');
+                })
+                .then(this.props.refreshcallback)
+                .catch(function(err){
+                  console.log("EEE->", err);
+                  ToastsStore.error(err.message, 8000);
+                });
             }
             if (this.props.data.currTab === 0) {
-              console.log("cancel offer");
-              console.log(row);
+              // console.log("cancel offer");
+              // console.log(row);
               const {
                 accounts,
                 contract,
@@ -82,15 +103,6 @@ class LoansList extends Component {
                 formcredit,
                 signedAgreement,
               } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
 
               const response = await contract.methods
                 .cancelOffer(
@@ -101,8 +113,13 @@ class LoansList extends Component {
                   // signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Cancelled"))
-                .catch((err) => console.log(err));
+                .then(function(res) {
+                  ToastsStore.success('Loan Offer Cancelled!');
+                })
+                .then(this.props.refreshcallback)
+                .catch(function(err){
+                  ToastsStore.error(err.message, 8000);
+                });
             }
 
             e.stopPropagation(); // don't select this row after clicking
@@ -130,8 +147,8 @@ class LoansList extends Component {
     ];
 
     const rows = [];
-    for (var elem in this.props.data.loans) {
-      const lenderDetail = this.props.data.loans[elem]; //this.props.data.loans[elem] ===
+    for (var elem in this.state.Loans) {
+      const lenderDetail = this.state.Loans[elem];
       rows.push({
         id: lenderDetail[0],
         lender: lenderDetail[5],
@@ -141,11 +158,11 @@ class LoansList extends Component {
         interest: lenderDetail[4],
       });
     }
-
+    console.log("QQQ->", rows);
     return (
       <div className="LoansList">
         <div>
-          {<h1>{this.props.data.currTab === 0 && "All Loans"}</h1>}
+          {<h1>{this.props.data.currTab === 0 && "Your Loan Offers"}</h1>}
           {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
 
           <div style={{ height: 400, width: "100%" }}>
