@@ -57,8 +57,9 @@ class BorrowerLoansList extends Component {
               .then(function(res) {
                 ToastsStore.success('Loan Paid Off! Amount transferred to lender');
                 console.log("WWW->", this.props);
-                this.props.refreshcallback();
-              }).catch(function(err){
+              })
+              .then(this.props.refreshcallback)
+              .catch(function(err){
                 console.log("WWW->", err);
                 ToastsStore.error(err.message, 8000);
               });
@@ -84,26 +85,30 @@ class BorrowerLoansList extends Component {
         renderCell: (params) => {
           const onClick = async (row, e) => {
             let amount = parseInt(prompt("Please enter your repayment amount"));
-            const amountInWei = this.state.web3.utils.toWei(amount, "ether");
+            if (!amount){
+              amount = 0
+            }
             const {
               accounts,
-              contract
+              contract,
+              web3
             } = this.props.data;
 
+            const amountInWei = web3.utils.toWei('' + amount, "ether");
             const response = await contract.methods
               .payOffLoan(row.row.id)
               .send({ from: accounts[0], value: amountInWei})
               .then(function(res) {
                 ToastsStore.success('Partilly Paid! Amount transferred to lender');
-                console.log("WWW->", this.props);
-                this.props.refreshcallback();
-              }).catch(function(err){
+              })
+              .then(this.props.refreshcallback)
+              .catch(function(err){
                 console.log("WWW->", err);
                 ToastsStore.error(err.message, 8000);
               });
 
               const remainingAmount = await contract.methods.findRemainingAmt(row.row.id).call();
-              ToastsStore.success('Remaining Amount is : ' + remainingAmount + 'Wei');
+              ToastsStore.success('Remaining Amount is : ' + remainingAmount + ' Wei', 8000);
             e.stopPropagation(); // don't select this row after clicking
           };
 

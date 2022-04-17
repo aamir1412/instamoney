@@ -85,8 +85,9 @@ class LoansList extends Component {
                 .send({ from: accounts[0] })
                 .then(function(res) {
                   ToastsStore.success('Loan Confirmed! Amount transferred to your account');
-                  this.props.refreshcallback();
-                }).catch(function(err){
+                })
+                .then(this.props.refreshcallback)
+                .catch(function(err){
                   console.log("EEE->", err);
                   ToastsStore.error(err.message, 8000);
                 });
@@ -114,8 +115,8 @@ class LoansList extends Component {
                 .send({ from: accounts[0] })
                 .then(function(res) {
                   ToastsStore.success('Loan Offer Cancelled!');
-                  this.props.refreshcallback();
                 })
+                .then(this.props.refreshcallback)
                 .catch(function(err){
                   ToastsStore.error(err.message, 8000);
                 });

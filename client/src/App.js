@@ -133,8 +133,9 @@ class App extends Component {
       .send({ from: accounts[0], value: amountInWei })
       .then(function(res) {
         ToastsStore.success('Loan Posted On The Marketplace!');
-        this.getAllLoans();
-      }).catch((err) => console.log(err));
+      })
+      .then(this.getAllLoans)
+      .catch((err) => console.log(err));
   };
 
   handleFormSubmitBorrower = async (e) => {};
