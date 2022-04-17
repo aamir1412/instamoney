@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
-
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 import { Route, Routes } from "react-router-dom";
 import MainNavigation from "./components/MainNavigation";
 import CurrDate from "./components/CurrDate";
@@ -131,8 +131,10 @@ class App extends Component {
     const response = await contract.methods
       .offerLoan(formname, formidn, formterm, formrate)
       .send({ from: accounts[0], value: amountInWei })
-      .then(this.getAllLoans)
-      .catch((err) => console.log(err));
+      .then(function(res) {
+        ToastsStore.success('Loan Posted On The Marketplace!');
+        this.getAllLoans();
+      }).catch((err) => console.log(err));
   };
 
   handleFormSubmitBorrower = async (e) => {};
@@ -160,6 +162,7 @@ class App extends Component {
     }
     return (
       <div className="App">
+        <ToastsContainer store={ToastsStore}/>
         <div>
           <MainNavigation />
           <AppBar position="static">

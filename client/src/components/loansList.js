@@ -8,19 +8,39 @@ import { Component } from "react";
 class LoansList extends Component {
   constructor(props) {
     super(props);
-    var filteredLoans = props.data.loans.filter(function(l) {
-      return l.status === "3";  //only open loans can be taken
-    });
-    // console.log("ZZZ -> ", props.data.loans);
-    this.state = {
-      Loans: filteredLoans,
-    };
+    if(this.props.data.currTab === 0){
+      var filteredLoans = props.data.loans.filter(function(l) {
+        return l.lender === props.data.accounts[0];  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    } else if (this.props.data.currTab === 1) {
+      var filteredLoans = props.data.loans.filter(function(l) {
+        return l.status === "3";  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    var filteredLoans = nextProps.data.loans.filter(function(l) {
-      return l.status === "3";  //only open loans can be taken
-    });
+    if(nextProps.data.currTab === 0){
+      var filteredLoans = nextProps.data.loans.filter(function(l) {
+        return l.lender === nextProps.data.accounts[0];  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    } else if (nextProps.data.currTab === 1) {
+      var filteredLoans = nextProps.data.loans.filter(function(l) {
+        return l.status === "3";  //only open loans can be taken
+      });
+      this.state = {
+        Loans: filteredLoans,
+      };
+    }
 
     // console.log("QQQ -> ", nextProps.data.loans);
     this.setState({ Loans: filteredLoans });
@@ -135,7 +155,7 @@ class LoansList extends Component {
     return (
       <div className="LoansList">
         <div>
-          {<h1>{this.props.data.currTab === 0 && "Your Open Offers"}</h1>}
+          {<h1>{this.props.data.currTab === 0 && "Your Loan Offers"}</h1>}
           {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
 
           <div style={{ height: 400, width: "100%" }}>
