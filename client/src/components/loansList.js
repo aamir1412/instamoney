@@ -38,6 +38,7 @@ class LoansList extends Component {
             // if (!window.confirm("Are you sure? Confirm")) {
             //   return false;
             // }
+
             if (this.props.data.currTab === 1) {
               console.log(row);
               const {
@@ -144,8 +145,8 @@ class LoansList extends Component {
     return (
       <div className="LoansList">
         <div>
-          <h1>Loans</h1>
-
+          {<h1>{this.props.data.currTab === 0 && "All Loans"}</h1>}
+          {<h1>{this.props.data.currTab === 1 && "Available Loans"}</h1>}
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
               key={rows.length}

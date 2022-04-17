@@ -35,42 +35,12 @@ class BorrowerLoansList extends Component {
         sortable: false,
         renderCell: (params) => {
           const onClick = async (row, e) => {
-            // if (!window.confirm("Are you sure? Confirm")) {
-            //   return false;
-            // }
-            if (this.props.data.currTab === 1) {
-              console.log(row);
-              const {
-                accounts,
-                contract,
-                formname,
-                formidn,
-                formcredit,
-                signedAgreement,
-              } = this.props.data;
-
-              console.log(
-                "ZZZ-> ",
-                formname,
-                formidn,
-                row.row.id,
-                formcredit,
-                signedAgreement
-              );
-
-              const response = await contract.methods
-                .takeLoan(
-                  formname,
-                  formidn,
-                  row.row.id,
-                  formcredit,
-                  signedAgreement
-                )
-                .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Taken"))
-                .catch((err) => console.log(err));
-            }
-            if (this.props.data.currTab === 0) {
+            let amount = parseInt(prompt("Please enter your repayment amount"));
+            // const amountInWei = this.state.web3.utils.toWei(
+            //   formamount,
+            //   "ether"
+            // );
+            if (1 === 1) {
               console.log("cancel offer");
               console.log(row);
               const {
@@ -90,20 +60,21 @@ class BorrowerLoansList extends Component {
                 formcredit,
                 signedAgreement
               );
-
+              console.log(amount);
+              console.log("show", accounts[0], amount);
               const response = await contract.methods
-                .payoffloan(
+                .findRemainingAmt(
                   // formname,
                   // formidn,
                   row.row.id
                   // formcredit,
                   // signedAgreement
                 )
-                .send({ from: accounts[0] })
-                .then((res) => console.log("Loan Cancelled"))
+                .send({ from: accounts[0] }) //, amount: amount
+                .then((res) => console.log("Amount Repaid"))
                 .catch((err) => console.log(err));
             }
-
+            console.log("Outstanding", this.response);
             e.stopPropagation(); // don't select this row after clicking
           };
 
@@ -125,8 +96,9 @@ class BorrowerLoansList extends Component {
       const lenderDetail = this.props.data.loans[elem];
       // console.log(lenderDetail[5], lenderDetail[6], this.props.data.accounts);
       if (
-        lenderDetail[6] === this.props.data.accounts[0] &&
-        lenderDetail[5] != this.props.data.accounts[0]
+        1 === 1
+        // lenderDetail[5] === this.props.data.accounts[0] &&
+        // lenderDetail[6] != this.props.data.accounts[0]
       ) {
         rows.push({
           id: lenderDetail[0],
