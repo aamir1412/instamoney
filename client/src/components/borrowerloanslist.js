@@ -8,13 +8,23 @@ import { Component } from "react";
 class BorrowerLoansList extends Component {
   constructor(props) {
     super(props);
+    var filteredLoans = props.data.loans.filter(function(l) {
+      return l.borrower === props.data.accounts[0];
+    });
     this.state = {
-      Loans: this.props.data.loans,
+      Loans: filteredLoans,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ Loans: nextProps.data.loans });
+    var filteredLoans = nextProps.data.loans.filter(function(l) {
+      return l.borrower === nextProps.data.accounts[0];
+    });
+
+    console.log("QQQ -> ", nextProps.data.loans);
+    console.log("QQQ -> ", nextProps.data.accounts[0]);
+    
+    this.setState({ Loans: filteredLoans });
   }
 
   render() {

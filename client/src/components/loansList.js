@@ -8,13 +8,22 @@ import { Component } from "react";
 class LoansList extends Component {
   constructor(props) {
     super(props);
+    var filteredLoans = props.data.loans.filter(function(l) {
+      return l.status == "3";  //only open loans can be taken
+    });
+    // console.log("ZZZ -> ", props.data.loans);
     this.state = {
-      Loans: this.props.data.loans,
+      Loans: filteredLoans,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ Loans: nextProps.data.loans });
+    var filteredLoans = nextProps.data.loans.filter(function(l) {
+      return l.status == "3";  //only open loans can be taken
+    });
+
+    // console.log("QQQ -> ", nextProps.data.loans);
+    this.setState({ Loans: filteredLoans });
   }
 
   render() {
@@ -130,8 +139,8 @@ class LoansList extends Component {
     ];
 
     const rows = [];
-    for (var elem in this.props.data.loans) {
-      const lenderDetail = this.props.data.loans[elem]; //this.props.data.loans[elem] ===
+    for (var elem in this.state.Loans) {
+      const lenderDetail = this.state.Loans[elem];
       rows.push({
         id: lenderDetail[0],
         lender: lenderDetail[5],
