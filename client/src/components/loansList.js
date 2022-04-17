@@ -34,13 +34,13 @@ class LoansList extends Component {
         headerName: "Action",
         sortable: false,
         renderCell: (params) => {
-          console.log(params);
-          const onClick = (id, e) => {
+          console.log("QQQ -> ", params);
+          const onClick = (row, e) => {
+            console.log("ZZZ-> ", row.row);
             if (!window.confirm("Are you sure? Confirm")) {
               return false;
             }
             e.stopPropagation(); // don't select this row after clicking
-            console.log(e, id);
             // const api = params.api;
             // const thisRow = {};
 
@@ -60,7 +60,7 @@ class LoansList extends Component {
               color="secondary"
               variant="outlined"
               //   endIcon={<KeyboardArrowRight />}
-              onClick={onClick.bind(this, params.id)}
+              onClick={onClick.bind(this, params)}
             >
               Confirm
             </Button>

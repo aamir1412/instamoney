@@ -109,34 +109,10 @@ class App extends Component {
     this.setState({ signedAgreement });
   };
 
-  handleFormSubmit = async (e) => {
+  handleFormSubmitLender = async (e) => {
     e.preventDefault();
 
-    if (this.state.currTab === 1) {
-      const {
-        accounts,
-        contract,
-        formname,
-        formamount,
-        formidn,
-        formcredit,
-        signedAgreement,
-      } = this.state;
-
-      const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
-      console.log(formname, formamount, formcredit, signedAgreement);
-
-      // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
-      // ^use this while receiving and sending ethers
-      const response = await contract.methods
-        .borrowReg(formname, formidn, formcredit, signedAgreement)
-        .send({ from: accounts[0] })
-        .then((res) => this.getAllLoans(res))
-        .catch((err) => console.log(err));
-
-      return;
-    }
-
+    console.log("Btn lender");
     const {
       accounts,
       contract,
@@ -158,6 +134,8 @@ class App extends Component {
       .then((res) => this.getAllLoans(res))
       .catch((err) => console.log(err));
   };
+
+  handleFormSubmitBorrower = async (e) => {};
 
   initialSetup = async () => {
     const { accounts, contract } = this.state;
@@ -197,7 +175,11 @@ class App extends Component {
                   <form
                     noValidate
                     autoComplete="off"
-                    onSubmit={this.handleFormSubmit}
+                    onSubmit={
+                      this.state.currTab === 0
+                        ? this.handleFormSubmitLender
+                        : this.handleFormSubmitBorrower
+                    }
                   >
                     <TextField
                       onChange={this.handleNameChange}
@@ -283,14 +265,16 @@ class App extends Component {
                       />
                     )}
 
-                    <Button
-                      type="submit"
-                      color="secondary"
-                      variant="outlined"
-                      endIcon={<KeyboardArrowRight />}
-                    >
-                      {this.state.currTab === 0 ? "Lend Money" : "Register"}
-                    </Button>
+                    {this.state.currTab === 0 ? (
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        variant="outlined"
+                        endIcon={<KeyboardArrowRight />}
+                      >
+                        {this.state.currTab === 0 ? "Lend Money" : "Register"}
+                      </Button>
+                    ) : null}
                   </form>
                 </CardContent>
               </Card>
@@ -312,7 +296,7 @@ class App extends Component {
                 <Card sx={{ minWidth: 275 }}>
                   <CardContent>
                     <Typography variant="h5" gutterBottom component="div">
-                      Open Offers
+                      My Loans
                     </Typography>
                     {/* <LoansList data={this.state} /> */}
                   </CardContent>
