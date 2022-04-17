@@ -1,6 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid, GridColDef, GridApi, GridCellValue } from "@mui/x-data-grid";
 import React from "react";
+import {ToastsContainer, ToastsStore} from 'react-toasts';
 import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
@@ -26,20 +27,15 @@ class LoansList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    var filteredLoans = [];
     if(nextProps.data.currTab === 0){
       var filteredLoans = nextProps.data.loans.filter(function(l) {
         return l.lender === nextProps.data.accounts[0];  //only open loans can be taken
       });
-      this.state = {
-        Loans: filteredLoans,
-      };
     } else if (nextProps.data.currTab === 1) {
       var filteredLoans = nextProps.data.loans.filter(function(l) {
         return l.status === "3";  //only open loans can be taken
       });
-      this.state = {
-        Loans: filteredLoans,
-      };
     }
 
     // console.log("QQQ -> ", nextProps.data.loans);
@@ -87,8 +83,12 @@ class LoansList extends Component {
                   signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then(this.props.refreshcallback)
-                .catch((err) => console.log(err));
+                .then(function(res) {
+                  ToastsStore.success('Loan Confirmed! Amount transferred to your account');
+                  this.props.refreshcallback();
+                }).catch(function(err){
+                  ToastsStore.error(err.message, 8000);
+                });
             }
             if (this.props.data.currTab === 0) {
               // console.log("cancel offer");
@@ -111,8 +111,13 @@ class LoansList extends Component {
                   // signedAgreement
                 )
                 .send({ from: accounts[0] })
-                .then(this.props.refreshcallback)
-                .catch((err) => console.log(err));
+                .then(function(res) {
+                  ToastsStore.success('Loan Offer Cancelled!');
+                  this.props.refreshcallback();
+                })
+                .catch(function(err){
+                  ToastsStore.error(err.message, 8000);
+                });
             }
 
             e.stopPropagation(); // don't select this row after clicking
