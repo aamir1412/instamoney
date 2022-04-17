@@ -49,14 +49,13 @@ class BorrowerLoansList extends Component {
               contract
             } = this.props.data;
 
-            const remainingAmount = await contract.methods.findRemainingAmt(row.row.id).call();
+            const remainingAmount = await contract.methods.calculateRepaymentAmount(row.row.id).call();
             console.log("remainingAmount", remainingAmount);
             const response = await contract.methods
               .payOffLoan(row.row.id)
               .send({ from: accounts[0], value: remainingAmount})
               .then(function(res) {
                 ToastsStore.success('Loan Paid Off! Amount transferred to lender');
-                console.log("WWW->", this.props);
               })
               .then(this.props.refreshcallback)
               .catch(function(err){
@@ -107,7 +106,7 @@ class BorrowerLoansList extends Component {
                 ToastsStore.error(err.message, 8000);
               });
 
-              const remainingAmount = await contract.methods.findRemainingAmt(row.row.id).call();
+              const remainingAmount = await contract.methods.calculateRepaymentAmount(row.row.id).call();
               ToastsStore.success('Remaining Amount is : ' + remainingAmount + ' Wei', 8000);
             e.stopPropagation(); // don't select this row after clicking
           };
