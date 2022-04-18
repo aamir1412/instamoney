@@ -145,7 +145,7 @@ contract InstaMoney {
         }
 
         Loan memory offer = Loan({id: loan_id_counter++, amount: msg.value, repaid_amt: 0, term: term,
-         rate: interest_rate, lender: msg.sender, borrower: msg.sender, status: 3, activated_at: 0});  //open offer
+         rate: interest_rate, lender: msg.sender, borrower: address(0), status: 3, activated_at: 0});  //open offer
 
         loans.push(offer);
 
