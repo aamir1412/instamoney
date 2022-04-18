@@ -1,25 +1,30 @@
 1. Start Ganache. Quickstart
-2. Install node and npm
+2. Install node and npm. We have tested using node verion `v16.14.2` and `v14.6.0`, npm version `8.5.2` and `6.14.7`
 
-We have tested using node verion v16.14.2 and v14.6.0, npm version 8.5.2 and 6.14.7
+3. Install required node packages:
 
-Run this:
-npm install --save --legacy-peer-deps
+- `npm install --save --legacy-peer-deps`
 
-3. npm install truffle
+- `npm install truffle`
 
-4. truffle compile
+4. Run truffle commands
 
-4a. truffle migrate --reset
+- `truffle compile`
 
-5. cd client
+- `truffle migrate --reset`
 
-6. npm install
+5. Start the web app
 
-7. npm run start
+- `cd client`
 
-8. Open Browser. Visit localhost:3000
+- `npm install`
 
-9. Connect MetaMask to Ganache Provider, import accounts from Ganache using the keyphrase and connect to current site.
+- `npm run start`
 
-10. Reload Page
+6. Open Browser. Visit localhost:3000
+
+7. Connect MetaMask to Ganache Provider, import accounts from Ganache using the keyphrase and connect to current site.
+
+8. Reload Page (`Ctrl + Shift + R`)
+
+Check app functionality at [Video Recording Link](https://youtu.be/o1j71jqayF4)
