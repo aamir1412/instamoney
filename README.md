@@ -7,7 +7,7 @@
 
 - `npm install truffle`
 
-4. Run truffle commands
+4. Deploy the contract
 
 - `truffle compile`
 
