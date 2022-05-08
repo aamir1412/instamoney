@@ -57,6 +57,10 @@ contract InstaMoney is ERC20 {
         late_fine = new_late_fee;
     }
 
+    function airdropInitialAmount(address addr, uint amt) public onlyAdmin {
+        transfer(addr, amt * (10**18));
+    }
+
     function payOffLoan(uint loan_id, uint numTokens) public {
         require(numTokens != 0, "Zero amount is not acceptable as repayment");
 
@@ -133,7 +137,7 @@ contract InstaMoney is ERC20 {
         loans[at_index].borrower = msg.sender;
         loans[at_index].status = 1; //activate loan
         loans[at_index].activated_at = block.timestamp;
-        _transfer(address(this) , msg.sender,loans[at_index].amount);
+        _transfer(address(this) , msg.sender, loans[at_index].amount);
     }
 
     ///term is in days
@@ -214,8 +218,6 @@ contract InstaMoney is ERC20 {
         user_id_counter = 1;
         loan_id_counter = 1;
         late_fine = 4000;
-        _mint(msg.sender, 1000000*(10**18));   //uint256 initialSupply
-        // payable(address(this)).transfer(msg.value);
+        _mint(msg.sender, 100*(10**18));   //uint256 initialSupply
     }
-
 }

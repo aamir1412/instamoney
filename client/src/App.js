@@ -156,17 +156,19 @@ class App extends Component {
       accounts,
       contract,
       airdropAdr,
-      aridropAmt
+      airdropAmt
     } = this.state;
 
-    // const response = await contract.methods
-    //   .offerLoan(formname, formidn, formterm, formrate, formamount)
-    //   .call()
-    //   .then(function (res) {
-    //     ToastsStore.success("Loan Posted On The Marketplace!");
-    //   })
-    //   .then(this.getAllLoans)
-    //   .catch((err) => console.log(err));
+    console.log(airdropAdr, airdropAmt);
+
+    const response = await contract.methods
+      .airdropInitialAmount(airdropAdr, airdropAmt)
+      .send({ from: accounts[0] })
+      .then(function (res) {
+        console.log(res)
+        ToastsStore.success("Airdrop Success!");
+      })
+      .catch((err) => console.log(err));
   };
 
   handleFormSubmitBorrower = async (e) => {};
