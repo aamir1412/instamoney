@@ -149,6 +149,9 @@ class LoansList extends Component {
     const rows = [];
     for (var elem in this.state.Loans) {
       const lenderDetail = this.state.Loans[elem];
+      if (lenderDetail.status === "2"){
+        continue;
+      }
       rows.push({
         id: lenderDetail[0],
         lender: lenderDetail[5],
