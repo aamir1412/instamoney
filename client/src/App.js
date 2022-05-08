@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import Box from '@material-ui/core/Box';
+import Box from "@material-ui/core/Box";
 import InstaMoneyContract from "./contracts/InstaMoney.json";
 import getWeb3 from "./getWeb3";
-import {ToastsContainer, ToastsStore} from 'react-toasts';
+import { ToastsContainer, ToastsStore } from "react-toasts";
 import { Route, Routes } from "react-router-dom";
 import MainNavigation from "./components/MainNavigation";
 import CurrDate from "./components/CurrDate";
@@ -124,16 +124,16 @@ class App extends Component {
       formrate,
     } = this.state;
 
-    const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
+    //const amountInWei = this.state.web3.utils.toWei(formamount, "ether");
     // console.log(formname, amountInWei, formidn, formterm, formrate);
 
     // https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#fromwei
     // ^use this while receiving and sending ethers
     const response = await contract.methods
-      .offerLoan(formname, formidn, formterm, formrate)
-      .send({ from: accounts[0], value: amountInWei })
-      .then(function(res) {
-        ToastsStore.success('Loan Posted On The Marketplace!');
+      .offerLoan(formname, formidn, formterm, formrate, formamount)
+      .call()
+      .then(function (res) {
+        ToastsStore.success("Loan Posted On The Marketplace!");
       })
       .then(this.getAllLoans)
       .catch((err) => console.log(err));
@@ -146,10 +146,15 @@ class App extends Component {
     const response = await contract.methods.getAllLoans().call();
     this.setState({ loans: response });
     console.log(accounts[0]);
-    const userdetails = await contract.methods.getUserDetails(accounts[0]).call();
-    console.log('userdetails', userdetails);
+    const userdetails = await contract.methods
+      .getUserDetails(accounts[0])
+      .call();
+    console.log("userdetails", userdetails);
 
-    this.setState({formname: userdetails.name, formidn: userdetails.identification});
+    this.setState({
+      formname: userdetails.name,
+      formidn: userdetails.identification,
+    });
   };
 
   getAllLoans = async () => {
@@ -175,7 +180,7 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <ToastsContainer store={ToastsStore}/>
+        <ToastsContainer store={ToastsStore} />
         <div>
           <MainNavigation />
           <AppBar position="static">
@@ -185,138 +190,144 @@ class App extends Component {
             </Tabs>
           </AppBar>
           <Box m={1}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={3}>
-              <Card sx={{ minWidth: 275 }}>
-                <CardContent>
-                  <form
-                    noValidate
-                    autoComplete="off"
-                    onSubmit={
-                      this.state.currTab === 0
-                        ? this.handleFormSubmitLender
-                        : this.handleFormSubmitBorrower
-                    }
-                  >
-                    <TextField
-                      onChange={this.handleNameChange}
-                      value={this.state.formname || ''}
-                      className={classes.formfield}
-                      label="Name"
-                      variant="outlined"
-                      color="secondary"
-                      fullWidth
-                      required
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={3}>
+                <Card sx={{ minWidth: 275 }}>
+                  <CardContent>
+                    <form
+                      noValidate
+                      autoComplete="off"
+                      onSubmit={
+                        this.state.currTab === 0
+                          ? this.handleFormSubmitLender
+                          : this.handleFormSubmitBorrower
+                      }
+                    >
+                      <TextField
+                        onChange={this.handleNameChange}
+                        value={this.state.formname || ""}
+                        className={classes.formfield}
+                        label="Name"
+                        variant="outlined"
+                        color="secondary"
+                        fullWidth
+                        required
+                      />
+
+                      {this.state.currTab === 0 && (
+                        <TextField
+                          type="number"
+                          onChange={this.handleAmtChange}
+                          value={this.state.formamount}
+                          className={classes.formfield}
+                          label="Amount"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+                      )}
+                      <TextField
+                        onChange={this.handleFormIdnChange}
+                        value={this.state.formidn || ""}
+                        className={classes.formfield}
+                        label="Identification (SSN/PAN)"
+                        variant="outlined"
+                        color="secondary"
+                        fullWidth
+                        required
+                      />
+
+                      {this.state.currTab === 0 && (
+                        <TextField
+                          onChange={this.handleTermChange}
+                          type="number"
+                          value={this.state.formterm}
+                          className={classes.formfield}
+                          label="Term"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+                      )}
+                      {this.state.currTab === 0 && (
+                        <TextField
+                          onChange={this.handleInterestRateChange}
+                          value={this.state.formrate}
+                          className={classes.formfield}
+                          label="Interest Rate"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+                      )}
+                      {this.state.currTab === 1 && (
+                        <TextField
+                          onChange={this.handleCreditScoreChange}
+                          type="number"
+                          value={this.state.formcredit}
+                          className={classes.formfield}
+                          label="Credit Score"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+                      )}
+                      {this.state.currTab === 1 && (
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={this.state.signedAgreement}
+                              onChange={this.handleAgreementChange}
+                              inputProps={{ "aria-label": "controlled" }}
+                            />
+                          }
+                          label="Signed Agreement"
+                        />
+                      )}
+
+                      {this.state.currTab === 0 ? (
+                        <Button
+                          type="submit"
+                          color="secondary"
+                          variant="outlined"
+                          endIcon={<KeyboardArrowRight />}
+                        >
+                          {this.state.currTab === 0 ? "Lend Money" : "Register"}
+                        </Button>
+                      ) : null}
+                    </form>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={9}>
+                <Card sx={{ minWidth: 275 }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom component="div">
+                      {this.state.currTab === 0 ? "" : ""}
+                    </Typography>{" "}
+                    <LoansList
+                      data={this.state}
+                      refreshcallback={this.getAllLoans}
                     />
-
-                    {this.state.currTab === 0 && (
-                      <TextField
-                        type="number"
-                        onChange={this.handleAmtChange}
-                        value={this.state.formamount}
-                        className={classes.formfield}
-                        label="Amount"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
+                  </CardContent>
+                  {this.state.currTab === 1 ? (
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom component="div">
+                        {this.state.currTab === 0 ? "" : ""}
+                      </Typography>{" "}
+                      <BorrowerLoansList
+                        data={this.state}
+                        refreshcallback={this.getAllLoans}
                       />
-                    )}
-                    <TextField
-                      onChange={this.handleFormIdnChange}
-                      value={this.state.formidn || ''}
-                      className={classes.formfield}
-                      label="Identification (SSN/PAN)"
-                      variant="outlined"
-                      color="secondary"
-                      fullWidth
-                      required
-                    />
-
-                    {this.state.currTab === 0 && (
-                      <TextField
-                        onChange={this.handleTermChange}
-                        type="number"
-                        value={this.state.formterm}
-                        className={classes.formfield}
-                        label="Term"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
-                      />
-                    )}
-                    {this.state.currTab === 0 && (
-                      <TextField
-                        onChange={this.handleInterestRateChange}
-                        value={this.state.formrate}
-                        className={classes.formfield}
-                        label="Interest Rate"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
-                      />
-                    )}
-                    {this.state.currTab === 1 && (
-                      <TextField
-                        onChange={this.handleCreditScoreChange}
-                        type="number"
-                        value={this.state.formcredit}
-                        className={classes.formfield}
-                        label="Credit Score"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
-                      />
-                    )}
-                    {this.state.currTab === 1 && (
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={this.state.signedAgreement}
-                            onChange={this.handleAgreementChange}
-                            inputProps={{ "aria-label": "controlled" }}
-                          />
-                        }
-                        label="Signed Agreement"
-                      />
-                    )}
-
-                    {this.state.currTab === 0 ? (
-                      <Button
-                        type="submit"
-                        color="secondary"
-                        variant="outlined"
-                        endIcon={<KeyboardArrowRight />}
-                      >
-                        {this.state.currTab === 0 ? "Lend Money" : "Register"}
-                      </Button>
-                    ) : null}
-                  </form>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  ) : null}
+                </Card>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={9}>
-              <Card sx={{ minWidth: 275 }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom component="div">
-                    {this.state.currTab === 0 ? "" : ""}
-                  </Typography>{" "}
-                  <LoansList data={this.state} refreshcallback = {this.getAllLoans}/>
-                </CardContent>
-                {this.state.currTab === 1 ? (
-                <CardContent>
-                  <Typography variant="h6" gutterBottom component="div">
-                    {this.state.currTab === 0 ? "" : ""}
-                  </Typography>{" "}
-                  <BorrowerLoansList data={this.state} refreshcallback = {this.getAllLoans}/>
-                </CardContent>
-                ): null}
-              </Card>
-            </Grid>
-          </Grid>
           </Box>
         </div>
       </div>

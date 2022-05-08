@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid, GridColDef, GridApi, GridCellValue } from "@mui/x-data-grid";
 import React from "react";
-import {ToastsContainer, ToastsStore} from 'react-toasts';
+import { ToastsContainer, ToastsStore } from "react-toasts";
 import LoanLineItem from "./loan";
 import "./loans.css";
 import { Component } from "react";
@@ -9,7 +9,7 @@ import { Component } from "react";
 class BorrowerLoansList extends Component {
   constructor(props) {
     super(props);
-    var filteredLoans = props.data.loans.filter(function(l) {
+    var filteredLoans = props.data.loans.filter(function (l) {
       return l.borrower === props.data.accounts[0];
     });
     this.state = {
@@ -18,10 +18,10 @@ class BorrowerLoansList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    var filteredLoans = nextProps.data.loans.filter(function(l) {
+    var filteredLoans = nextProps.data.loans.filter(function (l) {
       return l.borrower === nextProps.data.accounts[0];
     });
-    
+
     this.setState({ Loans: filteredLoans });
   }
 
@@ -44,21 +44,22 @@ class BorrowerLoansList extends Component {
         renderCell: (params) => {
           const onClick = async (row, e) => {
             // let amount = parseInt(prompt("Please enter your repayment amount"));
-            const {
-              accounts,
-              contract
-            } = this.props.data;
+            const { accounts, contract } = this.props.data;
 
-            const remainingAmount = await contract.methods.calculateRepaymentAmount(row.row.id).call();
+            const remainingAmount = await contract.methods
+              .calculateRepaymentAmount(row.row.id)
+              .call();
             console.log("remainingAmount", remainingAmount);
             const response = await contract.methods
-              .payOffLoan(row.row.id)
-              .send({ from: accounts[0], value: remainingAmount})
-              .then(function(res) {
-                ToastsStore.success('Loan Paid Off! Amount transferred to lender');
+              .payOffLoan(row.row.id, remainingAmount)
+              .call()
+              .then(function (res) {
+                ToastsStore.success(
+                  "Loan Paid Off! Amount transferred to lender"
+                );
               })
               .then(this.props.refreshcallback)
-              .catch(function(err){
+              .catch(function (err) {
                 console.log("WWW->", err);
                 ToastsStore.error(err.message, 8000);
               });
@@ -84,30 +85,33 @@ class BorrowerLoansList extends Component {
         renderCell: (params) => {
           const onClick = async (row, e) => {
             let amount = parseInt(prompt("Please enter your repayment amount"));
-            if (!amount){
-              amount = 0
+            if (!amount) {
+              amount = 0;
             }
-            const {
-              accounts,
-              contract,
-              web3
-            } = this.props.data;
+            const { accounts, contract, web3 } = this.props.data;
 
-            const amountInWei = web3.utils.toWei('' + amount, "ether");
+            //const amountInWei = web3.utils.toWei("" + amount, "ether");
             const response = await contract.methods
-              .payOffLoan(row.row.id)
-              .send({ from: accounts[0], value: amountInWei})
-              .then(function(res) {
-                ToastsStore.success('Partilly Paid! Amount transferred to lender');
+              .payOffLoan(row.row.id, amount)
+              .call()
+              .then(function (res) {
+                ToastsStore.success(
+                  "Partilly Paid! Amount transferred to lender"
+                );
               })
               .then(this.props.refreshcallback)
-              .catch(function(err){
+              .catch(function (err) {
                 console.log("WWW->", err);
                 ToastsStore.error(err.message, 8000);
               });
 
-              const remainingAmount = await contract.methods.calculateRepaymentAmount(row.row.id).call();
-              ToastsStore.success('Remaining Amount is : ' + remainingAmount + ' Wei', 8000);
+            const remainingAmount = await contract.methods
+              .calculateRepaymentAmount(row.row.id)
+              .call();
+            ToastsStore.success(
+              "Remaining Amount is : " + remainingAmount + " Wei",
+              8000
+            );
             e.stopPropagation(); // don't select this row after clicking
           };
 
@@ -128,7 +132,7 @@ class BorrowerLoansList extends Component {
     for (var elem in this.state.Loans) {
       const lenderDetail = this.state.Loans[elem];
       // console.log("QQQ", lenderDetail);
-      
+
       if (
         lenderDetail[6] === this.props.data.accounts[0]
         // lenderDetail[6] is Borrower Account
