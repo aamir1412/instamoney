@@ -141,7 +141,7 @@ class App extends Component {
     // ^use this while receiving and sending ethers
     const response = await contract.methods
       .offerLoan(formname, formidn, formterm, formrate, formamount)
-      .call()
+      .send({ from: accounts[0] })
       .then(function (res) {
         ToastsStore.success("Loan Posted On The Marketplace!");
       })
