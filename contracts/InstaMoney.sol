@@ -1,9 +1,10 @@
 //SPDX-License-Identifier: UNLICENSED
 
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract InstaMoney {
+contract InstaMoney is ERC20 {
 
     address public admin;
     uint public user_id_counter;
@@ -56,8 +57,8 @@ contract InstaMoney {
         late_fine = new_late_fee;
     }
 
-    function payOffLoan(uint loan_id) public payable {
-        require(msg.value != 0, "Zero amount is not acceptable as repayment");
+    function payOffLoan(uint loan_id, uint numTokens) public {
+        require(numTokens != 0, "Zero amount is not acceptable as repayment");
 
         (uint at_index, bool found) = find_offer(loan_id);
 
@@ -68,14 +69,15 @@ contract InstaMoney {
 
         uint to_repay = calculateRepaymentAmount(loan_id);
 
-        require(msg.value <= to_repay , "Please don't transfer extra amount");
+        require(numTokens <= to_repay , "Please don't transfer extra amount");
 
         //accept payment
-        loans[at_index].repaid_amt += msg.value;
-        if(msg.value == to_repay) {
+        loans[at_index].repaid_amt += numTokens;
+        if(numTokens == to_repay) {
             loans[at_index].status = 2;    //Paid off completely
         }
-        payable(loans[at_index].lender).transfer(msg.value);
+        // payable(loans[at_index].lender).transfer(numTokens);
+        transfer(loans[at_index].lender,numTokens);
     }
 
     function calculateRepaymentAmount(uint loan_id) public view returns(uint) {
@@ -87,11 +89,11 @@ contract InstaMoney {
 
         uint principal = loans[at_index].amount;
 
-        uint time_elapsed_in_minutes = (now - loans[at_index].activated_at) / 60;
+        uint time_elapsed_in_minutes = (block.timestamp - loans[at_index].activated_at) / 60;
         uint interest = calcInterest(loans[at_index].amount, loans[at_index].rate, time_elapsed_in_minutes);
 
         uint late_amt = 0;
-        if(now - (loans[at_index].term * 30 days) > loans[at_index].activated_at) {
+        if(block.timestamp - (loans[at_index].term * 30 days) > loans[at_index].activated_at) {
             //Repayment is late
             late_amt = late_fine;
         }
@@ -113,7 +115,7 @@ contract InstaMoney {
     }
 
     function takeLoan(string memory borrower_name, string memory identification,
-        uint loan_id, uint credit_score, bool signed_collateral_agreement) public payable {
+        uint loan_id, uint credit_score, bool signed_collateral_agreement) public  {
         require(credit_score >= 600, "We can't lend to low credit borrowers");
         require(signed_collateral_agreement, "We can't lend without you agreeing for the collateral");
         
@@ -130,26 +132,26 @@ contract InstaMoney {
         //all good. give out loan
         loans[at_index].borrower = msg.sender;
         loans[at_index].status = 1; //activate loan
-        loans[at_index].activated_at = now;
-        msg.sender.transfer(loans[at_index].amount);
+        loans[at_index].activated_at = block.timestamp;
+        _transfer(address(this) , msg.sender,loans[at_index].amount);
     }
 
     ///term is in days
-    function offerLoan(string memory lender_name, string memory identification,
-                        uint term, uint interest_rate) public payable {
-        require(msg.value != 0, "Poor you. Please offer some money at least");
+    function offerLoan(string memory lender_name, string memory identification,uint term, uint interest_rate , uint numTokens) public  {
+        require(numTokens != 0, "Poor you. Please offer some money at least");
         require(term != 0, "term cannot be 0 months");
         if (users[msg.sender].id == 0) {
             User memory user = User({id: user_id_counter++, name: lender_name, identification: identification,credit_score:0,signed_collateral_agreement:false});
             users[msg.sender] = user;
         }
 
-        Loan memory offer = Loan({id: loan_id_counter++, amount: msg.value, repaid_amt: 0, term: term,
+        Loan memory offer = Loan({id: loan_id_counter++, amount: numTokens, repaid_amt: 0, term: term,
          rate: interest_rate, lender: msg.sender, borrower: address(0), status: 3, activated_at: 0});  //open offer
 
         loans.push(offer);
 
-        balances[msg.sender] += msg.value;
+        balances[msg.sender] += numTokens;
+        transfer(address(this), numTokens);
 
         //if this fails, all the above state changes will be reverted
     }
@@ -207,12 +209,13 @@ contract InstaMoney {
         return (0, false);
     }
 
-    constructor () public payable {
+    constructor () public ERC20("Mudra", "MDR") { //uint256 initialSupply
         admin = msg.sender;
         user_id_counter = 1;
         loan_id_counter = 1;
         late_fine = 4000;
-        payable(address(this)).transfer(msg.value);
+        _mint(msg.sender, 1000000);   //uint256 initialSupply
+        // payable(address(this)).transfer(msg.value);
     }
 
 }
