@@ -10,7 +10,7 @@ class BorrowerLoansList extends Component {
   constructor(props) {
     super(props);
     var filteredLoans = props.data.loans.filter(function (l) {
-      return l.borrower === props.data.accounts[0];
+      return l.borrower === props.data.accounts[0] && l.status === "1";
     });
     this.state = {
       Loans: filteredLoans,
@@ -19,7 +19,7 @@ class BorrowerLoansList extends Component {
 
   componentWillReceiveProps(nextProps) {
     var filteredLoans = nextProps.data.loans.filter(function (l) {
-      return l.borrower === nextProps.data.accounts[0];
+      return l.borrower === nextProps.data.accounts[0] && l.status === "1";
     });
 
     this.setState({ Loans: filteredLoans });
@@ -52,7 +52,7 @@ class BorrowerLoansList extends Component {
             console.log("remainingAmount", remainingAmount);
             const response = await contract.methods
               .payOffLoan(row.row.id, remainingAmount)
-              .call()
+              .send({ from: accounts[0] })
               .then(function (res) {
                 ToastsStore.success(
                   "Loan Paid Off! Amount transferred to lender"
@@ -93,7 +93,7 @@ class BorrowerLoansList extends Component {
             //const amountInWei = web3.utils.toWei("" + amount, "ether");
             const response = await contract.methods
               .payOffLoan(row.row.id, amount)
-              .call()
+              .send({ from: accounts[0] })
               .then(function (res) {
                 ToastsStore.success(
                   "Partilly Paid! Amount transferred to lender"
