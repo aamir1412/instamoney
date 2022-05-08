@@ -214,7 +214,7 @@ contract InstaMoney is ERC20 {
         user_id_counter = 1;
         loan_id_counter = 1;
         late_fine = 4000;
-        _mint(msg.sender, 1000000);   //uint256 initialSupply
+        _mint(msg.sender, 1000000*(10**18));   //uint256 initialSupply
         // payable(address(this)).transfer(msg.value);
     }
 
