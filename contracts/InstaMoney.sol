@@ -149,13 +149,13 @@ contract InstaMoney is ERC20 {
             users[msg.sender] = user;
         }
 
-        Loan memory offer = Loan({id: loan_id_counter++, amount: numTokens, repaid_amt: 0, term: term,
+        Loan memory offer = Loan({id: loan_id_counter++, amount: numTokens *(10**18), repaid_amt: 0, term: term,
          rate: interest_rate, lender: msg.sender, borrower: address(0), status: 3, activated_at: 0});  //open offer
 
         loans.push(offer);
 
-        balances[msg.sender] += numTokens;
-        transfer(address(this), numTokens);
+        balances[msg.sender] += (numTokens *(10**18));
+        transfer(address(this), numTokens * (10**18));
 
         //if this fails, all the above state changes will be reverted
     }
