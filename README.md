@@ -60,4 +60,5 @@ Check app functionality at [Video Recording Link](https://youtu.be/o1j71jqayF4)
 - Open Browser. Visit localhost:3000
 - Connect MetaMask to Ropsten Network, import/create accounts on this network using the keyphrase and connect to the current site.
 - Reload Page (Ctrl + Shift + R)
- 
+
+Phase III ERC20 Video at [Video Recording Link](https://youtu.be/NprFbSXXWxA)
