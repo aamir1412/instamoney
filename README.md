@@ -38,6 +38,8 @@ Check app functionality at [Video Recording Link](https://youtu.be/o1j71jqayF4)
 - npm install --save --legacy-peer-deps
 - npm install truffle
 - copy the contents of truffle-config-metamask.js to truffle-config.js
+- Add your account private key as mnemonic in the truffle-config.js
+- Add infura account project ID link in the HDWalletProvider in config file
 - truffle compile
 - truffle migrate --network ropsten
 - A contract address C and TransactionHash H will be generated. Save C and H somewhere for quick reference
