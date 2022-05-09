@@ -33,16 +33,15 @@ Check app functionality at [Video Recording Link](https://youtu.be/o1j71jqayF4)
  
 **To deploy on Ropsten, follow the following:**
 
-Install node and npm. We have tested using node version v16.14.2 and v14.6.0, npm version 8.5.2 and 6.14.7
-Install required node packages:
-npm install --save --legacy-peer-deps
-npm install truffle
-Deploy the contract
-copy the contents of truffle-config-metamask.js to truffle-config.js
-truffle compile
-truffle migrate --network ropsten
-A contract address C and TransactionHash H will be generated. Save C and H somewhere for quick reference
-Update the config of networks key in the built contract ABI file (client/src/contracts/InstaMoney.json) as below:
+- Install node and npm. We have tested using node version v16.14.2 and v14.6.0, npm version 8.5.2 and 6.14.7
+- Install required node packages:
+- npm install --save --legacy-peer-deps
+- npm install truffle
+- copy the contents of truffle-config-metamask.js to truffle-config.js
+- truffle compile
+- truffle migrate --network ropsten
+- A contract address C and TransactionHash H will be generated. Save C and H somewhere for quick reference
+- Update the config of networks key in the built contract ABI file (client/src/contracts/InstaMoney.json) as below:
   "networks": {
     "3": {
       "events": {},
@@ -52,14 +51,13 @@ Update the config of networks key in the built contract ABI file (client/src/con
     }
   },
 
-For values of address, use C and for value of transactionHash use H saved earlier in the previous step
 
-
-Start the web app
-cd client
-npm install
-npm run start
-Open Browser. Visit localhost:3000
-Connect MetaMask to Ropsten Network, import/create accounts on this network using the keyphrase and connect to the current site.
-Reload Page (Ctrl + Shift + R)
+- For values of address, use C and for value of transactionHash use H saved earlier in the previous step
+- Start the web app
+- cd client
+- npm install
+- npm run start
+- Open Browser. Visit localhost:3000
+- Connect MetaMask to Ropsten Network, import/create accounts on this network using the keyphrase and connect to the current site.
+- Reload Page (Ctrl + Shift + R)
  
