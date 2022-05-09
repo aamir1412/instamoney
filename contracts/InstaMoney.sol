@@ -61,7 +61,25 @@ contract InstaMoney is ERC20 {
         transfer(addr, amt * (10**18));
     }
 
-    function payOffLoan(uint loan_id, uint numTokens) public {
+    function payOffLoan(uint loan_id) public {
+
+        (uint at_index, bool found) = find_offer(loan_id);
+
+        require(found, "Loan not found");
+        //We are assuming anyone can pay off the loan on behalf of the borrower.
+        //Even the lender or government can pay off if they are willing to forgive the loan
+        require(loans[at_index].status == 1, "Loan is not active");
+
+        uint to_repay = calculateRepaymentAmount(loan_id);
+
+        //accept payment
+        loans[at_index].repaid_amt += to_repay;
+        loans[at_index].status = 2;    //Paid off completely
+
+        transfer(loans[at_index].lender,to_repay);
+    }
+
+    function payOffPartialLoan(uint loan_id, uint numTokens) public {
         require(numTokens != 0, "Zero amount is not acceptable as repayment");
 
         (uint at_index, bool found) = find_offer(loan_id);
@@ -73,15 +91,11 @@ contract InstaMoney is ERC20 {
 
         uint to_repay = calculateRepaymentAmount(loan_id);
 
-        require(numTokens <= to_repay , "Please don't transfer extra amount");
+        require(numTokens * (10**18) <= to_repay , "Please don't transfer extra amount");
 
         //accept payment
-        loans[at_index].repaid_amt += numTokens;
-        if(numTokens == to_repay) {
-            loans[at_index].status = 2;    //Paid off completely
-        }
-        // payable(loans[at_index].lender).transfer(numTokens);
-        transfer(loans[at_index].lender,numTokens);
+        loans[at_index].repaid_amt += (numTokens * (10**18));
+        transfer(loans[at_index].lender,numTokens * (10**18));
     }
 
     function calculateRepaymentAmount(uint loan_id) public view returns(uint) {
@@ -180,12 +194,12 @@ contract InstaMoney is ERC20 {
         return (loans_until_now, clients_served);
     }
 
-    function cancelOffer(uint offer_id) public payable{
+    function cancelOffer(uint offer_id) public {
 
         (address payable lender_addr, uint amount_to_return) = removeOffering(offer_id);
-        require(address(this).balance >= amount_to_return, "Low Contract Wallet Balance");
+        require(msg.sender == lender_addr, "Only lender can cancel the offer");
         balances[msg.sender] -= amount_to_return;
-        lender_addr.transfer(amount_to_return);
+        transfer(lender_addr, amount_to_return);
     }
 
     function removeOffering(uint offer_id) private returns(address payable, uint) {

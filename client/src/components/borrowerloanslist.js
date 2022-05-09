@@ -51,7 +51,7 @@ class BorrowerLoansList extends Component {
               .call();
             console.log("remainingAmount", remainingAmount);
             const response = await contract.methods
-              .payOffLoan(row.row.id, remainingAmount)
+              .payOffLoan(row.row.id)
               .send({ from: accounts[0] })
               .then(function (res) {
                 ToastsStore.success(
@@ -92,7 +92,7 @@ class BorrowerLoansList extends Component {
 
             //const amountInWei = web3.utils.toWei("" + amount, "ether");
             const response = await contract.methods
-              .payOffLoan(row.row.id, amount)
+              .payOffPartialLoan(row.row.id, amount)
               .send({ from: accounts[0] })
               .then(function (res) {
                 ToastsStore.success(
