@@ -1,3 +1,6 @@
+**Description**
+This is a blockchain project intended to display my understanding of the blockchain network and ethereum based smart contracts. The contract is a Defi (Decentralised Finance) application wherein a lender can len ethers at a certain interest rate and a borrower can borrow the ethers and pay interest on the loan. I have also used the openzeppelin library to create a crypto coin of our own named "Mudra". Mudra is used as the token of exchange instead of ethers in the Dapp.
+
 **To deploy on Ganache, follow the following:**
 
 
