@@ -57,7 +57,29 @@ contract InstaMoney is ERC20 {
         late_fine = new_late_fee;
     }
 
-    function payOffLoan(uint loan_id, uint numTokens) public {
+    function airdropInitialAmount(address addr, uint amt) public onlyAdmin {
+        transfer(addr, amt * (10**18));
+    }
+
+    function payOffLoan(uint loan_id) public {
+
+        (uint at_index, bool found) = find_offer(loan_id);
+
+        require(found, "Loan not found");
+        //We are assuming anyone can pay off the loan on behalf of the borrower.
+        //Even the lender or government can pay off if they are willing to forgive the loan
+        require(loans[at_index].status == 1, "Loan is not active");
+
+        uint to_repay = calculateRepaymentAmount(loan_id);
+
+        //accept payment
+        loans[at_index].repaid_amt += to_repay;
+        loans[at_index].status = 2;    //Paid off completely
+
+        transfer(loans[at_index].lender,to_repay);
+    }
+
+    function payOffPartialLoan(uint loan_id, uint numTokens) public {
         require(numTokens != 0, "Zero amount is not acceptable as repayment");
 
         (uint at_index, bool found) = find_offer(loan_id);
@@ -69,15 +91,11 @@ contract InstaMoney is ERC20 {
 
         uint to_repay = calculateRepaymentAmount(loan_id);
 
-        require(numTokens <= to_repay , "Please don't transfer extra amount");
+        require(numTokens * (10**18) <= to_repay , "Please don't transfer extra amount");
 
         //accept payment
-        loans[at_index].repaid_amt += numTokens;
-        if(numTokens == to_repay) {
-            loans[at_index].status = 2;    //Paid off completely
-        }
-        // payable(loans[at_index].lender).transfer(numTokens);
-        transfer(loans[at_index].lender,numTokens);
+        loans[at_index].repaid_amt += (numTokens * (10**18));
+        transfer(loans[at_index].lender,numTokens * (10**18));
     }
 
     function calculateRepaymentAmount(uint loan_id) public view returns(uint) {
@@ -133,7 +151,7 @@ contract InstaMoney is ERC20 {
         loans[at_index].borrower = msg.sender;
         loans[at_index].status = 1; //activate loan
         loans[at_index].activated_at = block.timestamp;
-        _transfer(address(this) , msg.sender,loans[at_index].amount);
+        _transfer(address(this) , msg.sender, loans[at_index].amount);
     }
 
     ///term is in days
@@ -145,13 +163,13 @@ contract InstaMoney is ERC20 {
             users[msg.sender] = user;
         }
 
-        Loan memory offer = Loan({id: loan_id_counter++, amount: numTokens, repaid_amt: 0, term: term,
+        Loan memory offer = Loan({id: loan_id_counter++, amount: numTokens *(10**18), repaid_amt: 0, term: term,
          rate: interest_rate, lender: msg.sender, borrower: address(0), status: 3, activated_at: 0});  //open offer
 
         loans.push(offer);
 
-        balances[msg.sender] += numTokens;
-        transfer(address(this), numTokens);
+        balances[msg.sender] += (numTokens *(10**18));
+        transfer(address(this), numTokens * (10**18));
 
         //if this fails, all the above state changes will be reverted
     }
@@ -176,12 +194,12 @@ contract InstaMoney is ERC20 {
         return (loans_until_now, clients_served);
     }
 
-    function cancelOffer(uint offer_id) public payable{
+    function cancelOffer(uint offer_id) public {
 
         (address payable lender_addr, uint amount_to_return) = removeOffering(offer_id);
-        require(address(this).balance >= amount_to_return, "Low Contract Wallet Balance");
+        require(msg.sender == lender_addr, "Only lender can cancel the offer");
         balances[msg.sender] -= amount_to_return;
-        lender_addr.transfer(amount_to_return);
+        transfer(lender_addr, amount_to_return);
     }
 
     function removeOffering(uint offer_id) private returns(address payable, uint) {
@@ -214,8 +232,6 @@ contract InstaMoney is ERC20 {
         user_id_counter = 1;
         loan_id_counter = 1;
         late_fine = 4000;
-        _mint(msg.sender, 1000000);   //uint256 initialSupply
-        // payable(address(this)).transfer(msg.value);
+        _mint(msg.sender, 100*(10**18));   //uint256 initialSupply
     }
-
 }

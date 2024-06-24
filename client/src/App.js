@@ -100,6 +100,16 @@ class App extends Component {
     this.setState({ formterm: formterm });
   };
 
+  handleAirdropAmtChange = (event) => {
+    const amt = event.target.value;
+    this.setState({ airdropAmt: amt });
+  };
+
+  handleAirdropAddressChange = (event) => {
+    const addr = event.target.value;
+    this.setState({ airdropAdr: addr });
+  };
+
   handleCreditScoreChange = (event) => {
     const formcredit = event.target.value;
     this.setState({ formcredit });
@@ -131,11 +141,33 @@ class App extends Component {
     // ^use this while receiving and sending ethers
     const response = await contract.methods
       .offerLoan(formname, formidn, formterm, formrate, formamount)
-      .call()
+      .send({ from: accounts[0] })
       .then(function (res) {
         ToastsStore.success("Loan Posted On The Marketplace!");
       })
       .then(this.getAllLoans)
+      .catch((err) => console.log(err));
+  };
+
+  handleSubmitAirdropAdmin = async (e) => {
+    e.preventDefault();
+
+    const {
+      accounts,
+      contract,
+      airdropAdr,
+      airdropAmt
+    } = this.state;
+
+    console.log(airdropAdr, airdropAmt);
+
+    const response = await contract.methods
+      .airdropInitialAmount(airdropAdr, airdropAmt)
+      .send({ from: accounts[0] })
+      .then(function (res) {
+        console.log(res)
+        ToastsStore.success("Airdrop Success!");
+      })
       .catch((err) => console.log(err));
   };
 
@@ -187,38 +219,34 @@ class App extends Component {
             <Tabs value={this.state.currTab} onChange={this.handleTabChange}>
               <Tab label="Lend" />
               <Tab label="Borrow" />
+              <Tab label="Admin" />
             </Tabs>
           </AppBar>
           <Box m={1}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
-                <Card sx={{ minWidth: 275 }}>
-                  <CardContent>
-                    <form
-                      noValidate
-                      autoComplete="off"
-                      onSubmit={
-                        this.state.currTab === 0
-                          ? this.handleFormSubmitLender
-                          : this.handleFormSubmitBorrower
-                      }
-                    >
-                      <TextField
-                        onChange={this.handleNameChange}
-                        value={this.state.formname || ""}
-                        className={classes.formfield}
-                        label="Name"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
-                      />
-
-                      {this.state.currTab === 0 && (
+          {
+            this.state.currTab === 2 ? (
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                      <form
+                        noValidate
+                        autoComplete="off"
+                        onSubmit={this.handleSubmitAirdropAdmin}
+                      >
                         <TextField
-                          type="number"
-                          onChange={this.handleAmtChange}
-                          value={this.state.formamount}
+                          onChange={this.handleAirdropAddressChange}
+                          value={this.state.airdropAdr || ""}
+                          className={classes.formfield}
+                          label="Receiver Address"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+                        <TextField
+                          onChange={this.handleAirdropAmtChange}
+                          value={this.state.airdropAmt || ""}
                           className={classes.formfield}
                           label="Amount"
                           variant="outlined"
@@ -226,108 +254,160 @@ class App extends Component {
                           fullWidth
                           required
                         />
-                      )}
-                      <TextField
-                        onChange={this.handleFormIdnChange}
-                        value={this.state.formidn || ""}
-                        className={classes.formfield}
-                        label="Identification (SSN/PAN)"
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        required
-                      />
-
-                      {this.state.currTab === 0 && (
-                        <TextField
-                          onChange={this.handleTermChange}
-                          type="number"
-                          value={this.state.formterm}
-                          className={classes.formfield}
-                          label="Term"
-                          variant="outlined"
-                          color="secondary"
-                          fullWidth
-                          required
-                        />
-                      )}
-                      {this.state.currTab === 0 && (
-                        <TextField
-                          onChange={this.handleInterestRateChange}
-                          value={this.state.formrate}
-                          className={classes.formfield}
-                          label="Interest Rate"
-                          variant="outlined"
-                          color="secondary"
-                          fullWidth
-                          required
-                        />
-                      )}
-                      {this.state.currTab === 1 && (
-                        <TextField
-                          onChange={this.handleCreditScoreChange}
-                          type="number"
-                          value={this.state.formcredit}
-                          className={classes.formfield}
-                          label="Credit Score"
-                          variant="outlined"
-                          color="secondary"
-                          fullWidth
-                          required
-                        />
-                      )}
-                      {this.state.currTab === 1 && (
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={this.state.signedAgreement}
-                              onChange={this.handleAgreementChange}
-                              inputProps={{ "aria-label": "controlled" }}
-                            />
-                          }
-                          label="Signed Agreement"
-                        />
-                      )}
-
-                      {this.state.currTab === 0 ? (
                         <Button
                           type="submit"
                           color="secondary"
                           variant="outlined"
                           endIcon={<KeyboardArrowRight />}
                         >
-                          {this.state.currTab === 0 ? "Lend Money" : "Register"}
+                          Airdrop
                         </Button>
-                      ) : null}
-                    </form>
-                  </CardContent>
-                </Card>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={9}>
-                <Card sx={{ minWidth: 275 }}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom component="div">
-                      {this.state.currTab === 0 ? "" : ""}
-                    </Typography>{" "}
-                    <LoansList
-                      data={this.state}
-                      refreshcallback={this.getAllLoans}
-                    />
-                  </CardContent>
-                  {this.state.currTab === 1 ? (
+            ):(
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                      <form
+                        noValidate
+                        autoComplete="off"
+                        onSubmit={
+                          this.state.currTab === 0
+                            ? this.handleFormSubmitLender
+                            : this.handleFormSubmitBorrower
+                        }
+                      >
+                        <TextField
+                          onChange={this.handleNameChange}
+                          value={this.state.formname || ""}
+                          className={classes.formfield}
+                          label="Name"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+
+                        {this.state.currTab === 0 && (
+                          <TextField
+                            type="number"
+                            onChange={this.handleAmtChange}
+                            value={this.state.formamount}
+                            className={classes.formfield}
+                            label="Amount"
+                            variant="outlined"
+                            color="secondary"
+                            fullWidth
+                            required
+                          />
+                        )}
+                        <TextField
+                          onChange={this.handleFormIdnChange}
+                          value={this.state.formidn || ""}
+                          className={classes.formfield}
+                          label="Identification (SSN/PAN)"
+                          variant="outlined"
+                          color="secondary"
+                          fullWidth
+                          required
+                        />
+
+                        {this.state.currTab === 0 && (
+                          <TextField
+                            onChange={this.handleTermChange}
+                            type="number"
+                            value={this.state.formterm}
+                            className={classes.formfield}
+                            label="Term"
+                            variant="outlined"
+                            color="secondary"
+                            fullWidth
+                            required
+                          />
+                        )}
+                        {this.state.currTab === 0 && (
+                          <TextField
+                            onChange={this.handleInterestRateChange}
+                            value={this.state.formrate}
+                            className={classes.formfield}
+                            label="Interest Rate"
+                            variant="outlined"
+                            color="secondary"
+                            fullWidth
+                            required
+                          />
+                        )}
+                        {this.state.currTab === 1 && (
+                          <TextField
+                            onChange={this.handleCreditScoreChange}
+                            type="number"
+                            value={this.state.formcredit}
+                            className={classes.formfield}
+                            label="Credit Score"
+                            variant="outlined"
+                            color="secondary"
+                            fullWidth
+                            required
+                          />
+                        )}
+                        {this.state.currTab === 1 && (
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={this.state.signedAgreement}
+                                onChange={this.handleAgreementChange}
+                                inputProps={{ "aria-label": "controlled" }}
+                              />
+                            }
+                            label="Signed Agreement"
+                          />
+                        )}
+
+                        {this.state.currTab === 0 ? (
+                          <Button
+                            type="submit"
+                            color="secondary"
+                            variant="outlined"
+                            endIcon={<KeyboardArrowRight />}
+                          >
+                            {this.state.currTab === 0 ? "Lend Money" : "Register"}
+                          </Button>
+                        ) : null}
+                      </form>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} md={9}>
+                  <Card sx={{ minWidth: 275 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom component="div">
                         {this.state.currTab === 0 ? "" : ""}
                       </Typography>{" "}
-                      <BorrowerLoansList
+                      <LoansList
                         data={this.state}
                         refreshcallback={this.getAllLoans}
                       />
                     </CardContent>
-                  ) : null}
-                </Card>
+                    {this.state.currTab === 1 ? (
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom component="div">
+                          {this.state.currTab === 0 ? "" : ""}
+                        </Typography>{" "}
+                        <BorrowerLoansList
+                          data={this.state}
+                          refreshcallback={this.getAllLoans}
+                        />
+                      </CardContent>
+                    ) : null}
+                  </Card>
+                </Grid>
               </Grid>
-            </Grid>
+              )
+          }
           </Box>
         </div>
       </div>
